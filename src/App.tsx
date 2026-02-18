@@ -1,6 +1,6 @@
 // src/App.tsx
-import React from 'react';
-import './index.css';
+import React from "react";
+import "./index.css";
 
 const App = () => {
   return (
@@ -13,7 +13,9 @@ const App = () => {
           </div>
           <div>
             <p className="text-xs text-gray-400">BIENVENUE</p>
-            <p className="font-bold">Amadou <span className="text-blue-500">#LUG</span></p>
+            <p className="font-bold">
+              Amadou <span className="text-blue-500">#LUG</span>
+            </p>
           </div>
         </div>
         <div className="flex gap-3">
@@ -30,8 +32,14 @@ const App = () => {
       <main className="flex-1 overflow-y-auto px-4 pb-20">
         {/* Hero Section */}
         <section className="mt-4 bg-gradient-to-br from-[#1a2942] to-[#0d1b2e] rounded-2xl p-6 border border-gray-800">
-          <h1 className="text-2xl font-bold mb-1">VALORANT CHAMPIONS<br/>TOUR</h1>
-          <p className="text-sm text-gray-400 mb-4">GrandsFinals - Finale vs LOUD</p>
+          <h1 className="text-2xl font-bold mb-1">
+            VALORANT CHAMPIONS
+            <br />
+            TOUR
+          </h1>
+          <p className="text-sm text-gray-400 mb-4">
+            GrandsFinals - Finale vs LOUD
+          </p>
           <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2">
             ▶ Regarder Maintenant
           </button>
@@ -41,9 +49,11 @@ const App = () => {
         <section className="mt-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold">Aperçu des performances</h2>
-            <button className="text-xs text-blue-500">Détails complets →</button>
+            <button className="text-xs text-blue-500">
+              Détails complets →
+            </button>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             {/* Radiant Card */}
             <div className="bg-[#1a2942] rounded-xl p-4 border border-gray-800">
@@ -78,14 +88,18 @@ const App = () => {
             <h2 className="text-lg font-bold">Compétitions à venir</h2>
             <button className="text-blue-500">→</button>
           </div>
-          
+
           <div className="bg-[#1a2942] rounded-xl p-4 border border-gray-800">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs bg-blue-600 px-2 py-1 rounded">TOURNOI FIFA</span>
+              <span className="text-xs bg-blue-600 px-2 py-1 rounded">
+                TOURNOI FIFA
+              </span>
               <span className="text-xs text-gray-400">18:32</span>
             </div>
             <h3 className="font-bold mb-1">EA SPORT SUMMER BLAST</h3>
-            <p className="text-xs text-gray-400 mb-3">COMPÉTITION / GRAND PRIX</p>
+            <p className="text-xs text-gray-400 mb-3">
+              COMPÉTITION / GRAND PRIX
+            </p>
             <button className="w-full bg-[#0d1b2e] hover:bg-[#162234] text-white py-2 rounded-lg text-sm font-semibold">
               S'INSCRIRE
             </button>
@@ -95,7 +109,7 @@ const App = () => {
         {/* Trending Shop */}
         <section className="mt-6 mb-4">
           <h2 className="text-lg font-bold mb-3">Tendances Boutique</h2>
-          
+
           <div className="grid grid-cols-2 gap-4">
             {/* Product 1 */}
             <div className="bg-[#1a2942] rounded-xl overflow-hidden border border-gray-800">
