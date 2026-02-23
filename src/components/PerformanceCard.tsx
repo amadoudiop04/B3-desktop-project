@@ -26,6 +26,11 @@ export const PerformanceCard: React.FC<PerformanceCardProps> = ({
       transition={{ delay: index * 0.1 }}
       className="bg-[#111927] rounded-xl p-4 border border-gray-800 hover:border-blue-500 transition cursor-pointer flex flex-col items-center text-center"
     >
+      {index === 0 && (
+        <div className="w-12 h-12 bg-yellow-500 rounded-lg mb-2 flex items-center justify-center text-xl font-bold text-black">
+          {icon}
+        </div>
+      )}
       <p className="text-lg font-bold">{title}</p>
       <p className="text-xs text-gray-400">{subtitle}</p>
       {value && (
@@ -39,7 +44,7 @@ export const PerformanceCard: React.FC<PerformanceCardProps> = ({
         <div className="w-full bg-gray-700/40 rounded-full h-2 overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
-            animate={{ width: `${Math.min(parseFloat(value) * 20, 100)}%` }}
+            animate={{ width: `${Math.min(parseFloat(value) * 50, 100)}%` }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
           />

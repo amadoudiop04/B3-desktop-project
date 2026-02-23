@@ -30,11 +30,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {discount}
           </span>
         )}
-        <div className="h-32 bg-gradient-to-br from-blue-900 to-[#111927] flex items-center justify-center overflow-hidden group-hover:scale-110 transition duration-300">
+        <div className="h-50 bg-gradient-to-br from-blue-900 to-[#111927] flex items-center justify-center overflow-hidden group-hover:scale-110 transition duration-300">
           <img
             src={image}
             alt={name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain p-2"
             onError={(e) => {
               e.currentTarget.src =
                 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%232563eb%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E';

@@ -1,9 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export const Navigation: React.FC = () => {
+interface NavigationProps {
+  currentPage: string;
+  onPageChange: (page: string) => void;
+}
+
+export const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChange }) => {
   const menuItems = [
-    { id: 'home', icon: '🏠', label: 'Accueil', active: true },
+    { id: 'home', icon: '🏠', label: 'Accueil' },
     { id: 'stats', icon: '📊', label: 'Stats' },
     { id: 'teams', icon: '👥', label: 'Équipes' },
     { id: 'betting', icon: '🎲', label: 'Tournois' },
@@ -16,10 +21,11 @@ export const Navigation: React.FC = () => {
         {menuItems.map((item) => (
           <motion.button
             key={item.id}
+            onClick={() => onPageChange(item.id)}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             className={`flex flex-col items-center gap-1 transition ${
-              item.active
+              currentPage === item.id
                 ? 'text-blue-500'
                 : 'text-gray-400 hover:text-white'
             }`}

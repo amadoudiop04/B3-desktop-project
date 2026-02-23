@@ -90,21 +90,22 @@ export const HomePage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <PerformanceCard
-            icon="◆"
+            <PerformanceCard
+            icon="🏆"
             title="Radiant"
-            value=""
-            subtitle="RANG ACTUEL"
+            value="TOP 500 EUW"
+            subtitle="CLASSEMENT EUW"
             index={0}
           />
           <PerformanceCard
-            icon="📊"
+            icon="📊"   
             title="K/D Ratio"
             value="1.45"
             subtitle="RATIO K/D"
             trend="+0.05"
             index={1}
           />
+          
         </div>
 
         {/* Win Rate Card */}
