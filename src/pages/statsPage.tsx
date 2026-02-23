@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-export const StatsPage: React.FC = () => {
+interface StatsPageProps {
+  onNavigate: (page: string) => void;
+}
+
+export const StatsPage: React.FC<StatsPageProps> = ({ onNavigate }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleSettingsAction = (
@@ -117,9 +121,14 @@ export const StatsPage: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-center py-4 border-b border-gray-800 relative">
         <div className="absolute left-0">
-          <div className="w-10 h-10 bg-[#1e293b] rounded-full flex items-center justify-center border border-gray-700">
+          <button
+            type="button"
+            onClick={() => onNavigate('home')}
+            aria-label="Aller a l'accueil"
+            className="w-10 h-10 bg-[#1e293b] rounded-full flex items-center justify-center border border-gray-700 hover:bg-gray-700 transition"
+          >
             <span className="text-lg">🎮</span>
-          </div>
+          </button>
         </div>
         <span className="text-sm font-bold tracking-wider">EA SPORTS // VALORANT</span>
         <div className="absolute right-0">

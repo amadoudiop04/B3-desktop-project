@@ -14,7 +14,7 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-[#061325] text-white flex flex-col">
       {currentPage === 'home' && <Header username={username} />}
       {currentPage === 'home' && <HomePage />}
-      {currentPage === 'stats' && <StatsPage />}
+      {currentPage === 'stats' && <StatsPage onNavigate={setCurrentPage} />}
       <Footer />
       <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />
     </div>
