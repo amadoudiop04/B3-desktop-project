@@ -1,8 +1,26 @@
 // src/App.tsx
 import React from 'react';
 import './index.css';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthPage } from './components/Auth/AuthPage';
 
-const App = () => {
+const AppContent = () => {
+  const { user, logout, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a1628] text-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
+
   return (
     <div className="min-h-screen bg-[#0a1628] text-white flex flex-col">
       {/* Header */}
@@ -13,7 +31,7 @@ const App = () => {
           </div>
           <div>
             <p className="text-xs text-gray-400">BIENVENUE</p>
-            <p className="font-bold">Amadou <span className="text-blue-500">#LUG</span></p>
+            <p className="font-bold">{user.username} <span className="text-blue-500">#LUG</span></p>
           </div>
         </div>
         <div className="flex gap-3">
@@ -22,6 +40,12 @@ const App = () => {
           </button>
           <button className="w-9 h-9 bg-[#1a2942] rounded-lg flex items-center justify-center hover:bg-[#243554]">
             ⚙️
+          </button>
+          <button
+            onClick={logout}
+            className="px-3 h-9 bg-red-600 hover:bg-red-700 rounded-lg flex items-center justify-center text-sm font-semibold transition"
+          >
+            Déconnexion
           </button>
         </div>
       </header>
@@ -159,6 +183,14 @@ const App = () => {
         </div>
       </nav>
     </div>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 
