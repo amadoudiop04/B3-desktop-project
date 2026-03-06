@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
   username: string;
@@ -6,6 +7,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ username }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { logout } = useAuth();
 
   const handleSettingsAction = (
     action: 'notifications' | 'settings' | 'profile' | 'help' | 'logout'
@@ -32,7 +34,10 @@ export const Header: React.FC<HeaderProps> = ({ username }) => {
       return;
     }
 
-    console.log('Logout');
+    if (action === 'logout') {
+      logout();
+      return;
+    }
   };
 
   return (

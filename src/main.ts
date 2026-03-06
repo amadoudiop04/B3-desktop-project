@@ -3,6 +3,7 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { testConnection, closePool } from './database/connection';
 import { createUser, authenticateUser, findUserById } from './database/userService';
+import { getUserStats, saveUserStats } from './database/statsService';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -78,6 +79,32 @@ const setupIpcHandlers = () => {
   ipcMain.handle('auth:logout', async () => {
     currentUser = null;
     return { success: true };
+  });
+
+  // Récupérer les stats d'un utilisateur
+  ipcMain.handle('stats:getUserStats', async (_event, userId: number) => {
+    try {
+      const stats = await getUserStats(userId);
+      return { success: true, stats };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la récupération des stats',
+      };
+    }
+  });
+
+  // Sauvegarder les stats d'un utilisateur
+  ipcMain.handle('stats:saveUserStats', async (_event, stats) => {
+    try {
+      const saved = await saveUserStats(stats);
+      return { success: saved };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la sauvegarde des stats',
+      };
+    }
   });
 };
 

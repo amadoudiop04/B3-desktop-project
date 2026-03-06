@@ -19,8 +19,8 @@ export const Footer: React.FC = () => {
             <ul className="space-y-1 text-sm text-gray-400">
               <li className="hover:text-white cursor-pointer transition">Accueil</li>
               <li className="hover:text-white cursor-pointer transition">Statistiques</li>
-              <li className="hover:text-white cursor-pointer transition">Équipes</li>
-              <li className="hover:text-white cursor-pointer transition">Tournois</li>
+              <li className="hover:text-white cursor-pointer transition">tournois</li>
+              <li className="hover:text-white cursor-pointer transition">shop</li>
             </ul>
           </div>
 

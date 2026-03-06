@@ -1,12 +1,189 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useAuth } from '../contexts/AuthContext';
+
+interface User {
+  id: string;
+  username: string;
+  email: string;
+}
+
+interface UserStats {
+  rank: string;
+  rr: number;
+  ranking: string;
+  winRate: number;
+  kdRatio: number;
+  avgDamage: number;
+}
+
+interface DatabaseUserStats {
+  user_id: number;
+  rank_name: string;
+  rank_rating: number;
+  win_rate: number;
+  kd_ratio: number;
+  avg_damage: number;
+}
+
+interface Agent {
+  name: string;
+  kd: string;
+  level: number;
+  matches: number;
+  progressColor: string;
+  image: string;
+  uuid?: string;
+}
+
+interface ValorantAgentApi {
+  uuid: string;
+  displayName: string;
+  fullPortrait: string;
+  isPlayable?: boolean;
+}
+
+interface ValorantApiResponse {
+  status: number;
+  data?: ValorantAgentApi[];
+}
 
 interface StatsPageProps {
+  user: User;
   onNavigate: (page: string) => void;
 }
 
-export const StatsPage: React.FC<StatsPageProps> = ({ onNavigate }) => {
+export const StatsPage: React.FC<StatsPageProps> = ({ user, onNavigate }) => {
+  const { logout } = useAuth();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [showAllAgents, setShowAllAgents] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
+  const [formData, setFormData] = useState({
+    rank_name: 'RADIANT',
+    rank_rating: 840,
+    win_rate: 62,
+    kd_ratio: 1.45,
+    avg_damage: 164,
+  });
+  const [userStats, setUserStats] = useState<UserStats>({
+    rank: 'RADIANT',
+    rr: 840,
+    ranking: '#162 AMÉRIQUE DU NORD',
+    winRate: 62,
+    kdRatio: 1.45,
+    avgDamage: 164,
+  });
+  const [topAgents, setTopAgents] = useState<Agent[]>([]);
+  const [allAgents, setAllAgents] = useState<Agent[]>([]);
+  const [loadingAgents, setLoadingAgents] = useState(true);
+
+  // Charger les agents depuis l'API Valorant
+  useEffect(() => {
+    const loadAgents = async () => {
+      try {
+        setLoadingAgents(true);
+        const response = await fetch('https://valorant-api.com/v1/agents');
+        const data = (await response.json()) as ValorantApiResponse;
+
+        if (data.status === 200 && data.data) {
+          // Filtrer et traiter les agents jouables
+          const playableAgentsList = data.data
+            .filter((agent) => agent.isPlayable !== false && agent.displayName)
+            .map((agent, index: number) => ({
+              name: agent.displayName.toUpperCase(),
+              kd: (1.2 + (index % 10) * 0.1).toFixed(2),
+              level: 18 - (index % 15),
+              matches: 142 - index * 5,
+              progressColor: ['bg-cyan-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500', 'bg-indigo-500'][index % 5],
+              image: agent.fullPortrait,
+              uuid: agent.uuid,
+            }));
+
+          // Top 5 agents
+          setTopAgents(playableAgentsList.slice(0, 5));
+          // Tous les agents
+          setAllAgents(playableAgentsList);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des agents:', error);
+        setTopAgents([]);
+        setAllAgents([]);
+      } finally {
+        setLoadingAgents(false);
+      }
+    };
+
+    loadAgents();
+  }, []);
+
+  // Charger les stats de l'utilisateur au montage
+  useEffect(() => {
+    const loadUserStats = async () => {
+      try {
+        if (window.electronAPI) {
+          const userId = Number(user.id);
+          if (Number.isNaN(userId)) {
+            return;
+          }
+
+          const response = await window.electronAPI.getUserStats(userId);
+
+          if (response.success && response.stats) {
+            const stats = response.stats as DatabaseUserStats;
+            setUserStats((previousStats) => ({
+              ...previousStats,
+              rank: stats.rank_name,
+              rr: Number(stats.rank_rating),
+              winRate: Number(stats.win_rate),
+              kdRatio: Number(stats.kd_ratio),
+              avgDamage: Number(stats.avg_damage),
+            }));
+            return;
+          }
+
+          setShowStatsModal(true);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des stats:', error);
+      }
+    };
+
+    loadUserStats();
+  }, [user.id]);
+
+  const handleSaveStats = async () => {
+    try {
+      const userId = Number(user.id);
+      if (Number.isNaN(userId)) {
+        return;
+      }
+
+      if (window.electronAPI) {
+        const response = await window.electronAPI.saveUserStats({
+          user_id: userId,
+          rank_name: formData.rank_name,
+          rank_rating: formData.rank_rating,
+          win_rate: formData.win_rate,
+          kd_ratio: formData.kd_ratio,
+          avg_damage: formData.avg_damage,
+        });
+
+        if (response.success) {
+          setUserStats({
+            rank: formData.rank_name,
+            rr: Number(formData.rank_rating),
+            ranking: '#162 AMÉRIQUE DU NORD',
+            winRate: Number(formData.win_rate),
+            kdRatio: Number(formData.kd_ratio),
+            avgDamage: Number(formData.avg_damage),
+          });
+          setShowStatsModal(false);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde des stats:', error);
+    }
+  };
 
   const handleSettingsAction = (
     action: 'notifications' | 'settings' | 'profile' | 'help' | 'logout'
@@ -33,57 +210,17 @@ export const StatsPage: React.FC<StatsPageProps> = ({ onNavigate }) => {
       return;
     }
 
-    console.log('Logout');
+    if (action === 'logout') {
+      logout();
+      return;
+    }
   };
 
   const globalStats = [
-    { label: 'GLOBAL K/D', value: '1.45', trend: '+4%', trendPositive: true },
-    { label: 'TAUX DE VICTOIRE', value: '62%', trend: '+1.2%', trendPositive: true },
-    { label: 'DÉGÂTS MOYENS', value: '28.4', trend: '+0.8%', trendPositive: true },
-    { label: 'K/D/A MOYENS', value: '164', trend: '/ko', trendPositive: false },
-  ];
-
-  const topAgents = [
-    {
-      name: 'JETT',
-      kd: '1.52',
-      level: 18,
-      matches: 142,
-      progressColor: 'bg-cyan-500',
-      image: 'https://static.wikia.nocookie.net/valorant/images/e/e3/Jett_Artwork_Full.png/revision/latest?cb=20220810202742',
-    },
-    {
-      name: 'REYNA',
-      kd: '1.38',
-      level: 12,
-      matches: 88,
-      progressColor: 'bg-purple-500',
-      image: 'https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/285726b9f66a2ab65a4f7f51f2acb8c6a33ec915-5120x1772.png?accountingTag=VAL',
-    },
-    {
-      name: 'SAGE',
-      kd: '1.25',
-      level: 15,
-      matches: 120,
-      progressColor: 'bg-green-500',
-      image: 'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/58a180961a14beb631877921e647c233804853c1-616x822.png?accountingTag=VAL&auto=format&fit=fill&q=80&w=415',
-    },
-    {
-      name: 'PHOENIX',
-      kd: '1.42',
-      level: 10,
-      matches: 95,
-      progressColor: 'bg-orange-500',
-      image: 'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/47387e354c34d51b84066bc47af3c5755b92b9c5-616x822.png?accountingTag=VAL&auto=format&fit=fill&q=80&w=415',
-    },
-    {
-      name: 'OMEN',
-      kd: '1.31',
-      level: 8,
-      matches: 67,
-      progressColor: 'bg-indigo-500',
-      image: 'https://img.redbull.com/images/c_crop,x_260,y_0,h_675,w_506/c_fill,w_450,h_600/q_auto,f_auto/redbullcom/2022/12/28/r4mgsw6smbegnyyacryr/omen-valorant',
-    },
+    { label: 'GLOBAL K/D', value: userStats.kdRatio.toFixed(2), trend: '+4%', trendPositive: true },
+    { label: 'TAUX DE VICTOIRE', value: `${userStats.winRate.toFixed(1)}%`, trend: '+1.2%', trendPositive: true },
+    { label: 'DÉGÂTS MOYENS', value: userStats.avgDamage.toFixed(0), trend: '+0.8%', trendPositive: true },
+    { label: 'RANK RATING', value: userStats.rr.toString(), trend: 'actuel', trendPositive: false },
   ];
 
   const matchHistory = [
@@ -118,6 +255,130 @@ export const StatsPage: React.FC<StatsPageProps> = ({ onNavigate }) => {
 
   return (
     <main className="flex-1 overflow-y-auto px-4 pb-20 bg-[#061325]">
+      {/* Stats Input Modal */}
+      {showStatsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-[#1e293b] rounded-2xl p-8 max-w-md w-full mx-4 border border-gray-700"
+          >
+            <h2 className="text-2xl font-bold mb-6">Initialiser vos stats</h2>
+            <p className="text-gray-400 text-sm mb-6">
+              Veuillez renseigner vos statistiques Valorant pour commencer.
+            </p>
+
+            <div className="space-y-4">
+              {/* Rang */}
+              <div>
+                <label className="block text-sm font-semibold mb-2">Rang</label>
+                <input
+                  type="text"
+                  value={formData.rank_name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, rank_name: e.target.value })
+                  }
+                  placeholder="Ex: RADIANT, IMMORTAL..."
+                  className="w-full bg-[#111927] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              {/* RR */}
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Rank Rating (RR)
+                </label>
+                <input
+                  type="number"
+                  value={formData.rank_rating}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      rank_rating: Math.max(0, parseInt(e.target.value) || 0),
+                    })
+                  }
+                  placeholder="0-100"
+                  className="w-full bg-[#111927] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              {/* Win Rate */}
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Taux de victoire (%)
+                </label>
+                <input
+                  type="number"
+                  value={formData.win_rate}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      win_rate: Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)),
+                    })
+                  }
+                  placeholder="0-100"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  className="w-full bg-[#111927] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              {/* K/D Ratio */}
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  K/D Ratio
+                </label>
+                <input
+                  type="number"
+                  value={formData.kd_ratio}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      kd_ratio: Math.max(0, parseFloat(e.target.value) || 0),
+                    })
+                  }
+                  placeholder="Ex: 1.45"
+                  step="0.01"
+                  className="w-full bg-[#111927] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              {/* Avg Damage */}
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Dégâts moyens par round
+                </label>
+                <input
+                  type="number"
+                  value={formData.avg_damage}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      avg_damage: Math.max(0, parseFloat(e.target.value) || 0),
+                    })
+                  }
+                  placeholder="Ex: 164"
+                  step="0.1"
+                  className="w-full bg-[#111927] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 mt-8">
+              <button
+                type="button"
+                onClick={handleSaveStats}
+                className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition"
+              >
+                Confirmer
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-center py-4 border-b border-gray-800 relative">
         <div className="absolute left-0">
@@ -202,7 +463,7 @@ export const StatsPage: React.FC<StatsPageProps> = ({ onNavigate }) => {
         <div className="flex flex-col items-center">
           {/* Avatar */}
           <div className="relative mb-4">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
+            <div className="w-24 h-24 rounded-full bg-linear-to-br from-cyan-400 to-blue-600 p-1">
               <div className="w-full h-full rounded-full bg-[#1e293b] flex items-center justify-center text-4xl">
                 👤
               </div>
@@ -213,17 +474,17 @@ export const StatsPage: React.FC<StatsPageProps> = ({ onNavigate }) => {
           </div>
 
           {/* Username */}
-          <h1 className="text-2xl font-bold mb-2">B3-TEST</h1>
+          <h1 className="text-2xl font-bold mb-2">{user.username}</h1>
           
           {/* Rank Info */}
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-cyan-400 font-bold text-sm">RADIANT</span>
-            <span className="text-gray-400 text-sm">• Record 840 RR</span>
+            <span className="text-cyan-400 font-bold text-sm">{userStats.rank}</span>
+            <span className="text-gray-400 text-sm">• Record {userStats.rr} RR</span>
           </div>
-          <p className="text-xs text-gray-500 mb-4">RANG #162 AMÉRIQUE DU NORD</p>
+          <p className="text-xs text-gray-500 mb-4">RANG {userStats.ranking}</p>
 
           {/* Button */}
-          <button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
+          <button onClick={() => setShowAllAgents(true)} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
             <span>🌐</span>
             <span>Voir le classement mondial</span>
           </button>
@@ -276,55 +537,69 @@ export const StatsPage: React.FC<StatsPageProps> = ({ onNavigate }) => {
           <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
             Agents les plus joués
           </h2>
-          <button className="text-xs text-blue-500 hover:text-blue-400">
+          <button onClick={() => setShowAllAgents(true)} className="text-xs text-blue-500 hover:text-blue-400">
             VOIR TOUT
           </button>
         </div>
 
-        <div className="space-y-3">
-          {topAgents.map((agent, index) => (
-            <motion.div
-              key={agent.name}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 + index * 0.1 }}
-              className="bg-[#111927] rounded-xl p-4 border border-gray-800 hover:border-blue-500 transition cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                {/* Agent Image */}
-                <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden flex-shrink-0">
-                  <img
-                    src={agent.image}
-                    alt={agent.name}
-                    className="w-full h-full object-cover object-top"
-                  />
-                </div>
-
-                {/* Agent Info */}
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold text-lg">{agent.name}</h3>
-                    <span className="text-green-400 font-semibold text-base">
-                      {agent.kd} K/D
-                    </span>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="w-full bg-gray-700/40 rounded-full h-2 overflow-hidden mb-2">
-                    <div
-                      style={{ width: `${Math.min((agent.level / 20) * 100, 100)}%` }}
-                      className={`h-full ${agent.progressColor} rounded-full`}
+        {loadingAgents ? (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-gray-400">Chargement des agents...</p>
+          </div>
+        ) : (showAllAgents ? allAgents : topAgents).length > 0 ? (
+          <div className="space-y-3">
+            {(showAllAgents ? allAgents : topAgents).map((agent, index) => (
+              <motion.div
+                key={agent.uuid || agent.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + index * 0.1 }}
+                className="bg-[#111927] rounded-xl p-4 border border-gray-800 hover:border-blue-500 transition cursor-pointer"
+              >
+                <div className="flex items-center gap-4">
+                  {/* Agent Image */}
+                  <div className="w-20 h-20 rounded-lg bg-linear-to-br from-gray-800 to-gray-900 overflow-hidden shrink-0">
+                    <img
+                      src={agent.image}
+                      alt={agent.name}
+                      className="w-full h-full object-cover object-top"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80"%3E%3Crect fill="%23374151" width="80" height="80"/%3E%3Ctext x="50%" y="50%" font-size="12" fill="%239CA3AF" text-anchor="middle" dominant-baseline="middle"%3EImage%3C/text%3E%3C/svg%3E';
+                      }}
                     />
                   </div>
 
-                  <p className="text-xs text-gray-400">
-                    MAÎTRISE: NIVEAU {agent.level} • {agent.matches} MATCHS
-                  </p>
+                  {/* Agent Info */}
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold text-lg">{agent.name}</h3>
+                      <span className="text-green-400 font-semibold text-base">
+                        {agent.kd} K/D
+                      </span>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="w-full bg-gray-700/40 rounded-full h-2 overflow-hidden mb-2">
+                      <div
+                        style={{ width: `${Math.min((agent.level / 20) * 100, 100)}%` }}
+                        className={`h-full ${agent.progressColor} rounded-full`}
+                      />
+                    </div>
+
+                    <p className="text-xs text-gray-400">
+                      MAÎTRISE: NIVEAU {agent.level} • {agent.matches} MATCHS
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-gray-400">Aucun agent trouvé</p>
+          </div>
+        )}
       </motion.section>
 
       {/* Match History */}
@@ -368,6 +643,69 @@ export const StatsPage: React.FC<StatsPageProps> = ({ onNavigate }) => {
           ))}
         </div>
       </motion.section>
+
+      {/* Modal Classement Mondial / Tous les agents */}
+      {showAllAgents && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-[#1e293b] rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-700"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">🌐 Classement Mondial</h2>
+              <button
+                onClick={() => setShowAllAgents(false)}
+                className="text-2xl hover:text-gray-400 transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {allAgents.map((agent) => (
+                <div
+                  key={agent.uuid || agent.name}
+                  className="bg-[#111927] rounded-xl p-4 border border-gray-800 hover:border-blue-500 transition"
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Agent Image */}
+                    <div className="w-20 h-20 rounded-lg bg-linear-to-br from-gray-800 to-gray-900 overflow-hidden shrink-0">
+                      <img
+                        src={agent.image}
+                        alt={agent.name}
+                        className="w-full h-full object-cover object-top"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80"%3E%3Crect fill="%23374151" width="80" height="80"/%3E%3C/svg%3E';
+                        }}
+                      />
+                    </div>
+
+                    {/* Agent Info */}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-bold text-lg">{agent.name}</h3>
+                        <span className="text-green-400 font-semibold">{agent.kd} K/D</span>
+                      </div>
+                      <div className="w-full bg-gray-700/40 rounded-full h-2 overflow-hidden mb-2">
+                        <div
+                          style={{ width: `${Math.min((agent.level / 20) * 100, 100)}%` }}
+                          className={`h-full ${agent.progressColor} rounded-full`}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-400">
+                        Niv {agent.level} • {agent.matches} matchs
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </main>
   );
 };

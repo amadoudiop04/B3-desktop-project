@@ -216,3 +216,33 @@ export const updateUserValorantInfo = async (
     throw error;
   }
 };
+/**
+ * Obtenir les stats Valorant d'un utilisateur
+ */
+export const getUserValorantStats = async (userId: number): Promise<any | null> => {
+  try {
+    const pool = getPool();
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      'SELECT riot_id, tag_line FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return null;
+    }
+
+    // Retourne les infos Valorant pour l'utilisateur
+    // À l'avenir, cela peut être étendu pour inclure rang, RR, etc.
+    return {
+      riot_id: rows[0].riot_id,
+      tag_line: rows[0].tag_line,
+      // Ces champs peuvent être ajoutés à la table en futur
+      // rank: rows[0].rank,
+      // rr: rows[0].rr,
+      // ranking: rows[0].ranking,
+    };
+  } catch (error) {
+    console.error('Erreur lors de la récupération des stats Valorant:', error);
+    throw error;
+  }
+};

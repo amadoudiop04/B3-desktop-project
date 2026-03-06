@@ -10,8 +10,9 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChang
   const menuItems = [
     { id: 'home', icon: '🏠', label: 'Accueil' },
     { id: 'stats', icon: '📊', label: 'Stats' },
-    { id: 'teams', icon: '👥', label: 'Équipes' },
-    { id: 'betting', icon: '🎲', label: 'Tournois' },
+     { id: 'tournaments', icon: '🎲', label: 'Tournois' },
+    { id: 'shop', icon: '👥', label: 'shop' },
+   
     { id: 'profile', icon: '👤', label: 'Profil' },
   ];
 

@@ -10,6 +10,7 @@ import { StatsPage } from './pages/statsPage';
 
 const AppContent = () => {
   const { user, logout, isLoading } = useAuth();
+  const [currentPage, setCurrentPage] = useState('home');
 
   if (isLoading) {
     return (
@@ -27,9 +28,9 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen bg-[#061325] text-white flex flex-col">
-      {currentPage === 'home' && <Header username={username} />}
+      {currentPage === 'home' && <Header username={user.username} />}
       {currentPage === 'home' && <HomePage />}
-      {currentPage === 'stats' && <StatsPage onNavigate={setCurrentPage} />}
+      {currentPage === 'stats' && <StatsPage user={user} onNavigate={setCurrentPage} />}
       <Footer />
       <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />
     </div>
