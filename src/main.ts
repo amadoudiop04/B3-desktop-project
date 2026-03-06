@@ -1,11 +1,16 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
+import { testConnection, closePool } from './database/connection';
+import { createUser, authenticateUser, findUserById } from './database/userService';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
+
+// Stocker l'utilisateur actuellement connecté
+let currentUser: any = null;
 
 const createWindow = () => {
   // Create the browser window.
@@ -15,7 +20,7 @@ const createWindow = () => {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
@@ -34,15 +39,76 @@ const createWindow = () => {
   }
 };
 
+// IPC Handlers pour l'authentification
+const setupIpcHandlers = () => {
+  // Connexion
+  ipcMain.handle('auth:login', async (_event, email: string, password: string) => {
+    try {
+      const user = await authenticateUser(email, password);
+      currentUser = user;
+      return { success: true, user };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Erreur de connexion' 
+      };
+    }
+  });
+
+  // Inscription
+  ipcMain.handle('auth:register', async (_event, username: string, email: string, password: string) => {
+    try {
+      const user = await createUser(username, email, password);
+      currentUser = user;
+      return { success: true, user };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Erreur lors de l\'inscription' 
+      };
+    }
+  });
+
+  // Récupérer l'utilisateur actuel
+  ipcMain.handle('auth:getCurrentUser', async () => {
+    return { success: true, user: currentUser };
+  });
+
+  // Déconnexion
+  ipcMain.handle('auth:logout', async () => {
+    currentUser = null;
+    return { success: true };
+  });
+};
+
+// Initialiser l'application
+const initializeApp = async () => {
+  // Tester la connexion à la base de données
+  const isConnected = await testConnection();
+  if (!isConnected) {
+    console.error('⚠️  Impossible de se connecter à la base de données');
+    console.error('Vérifiez votre fichier .env et que MySQL est en cours d\'exécution');
+  }
+
+  // Configurer les IPC handlers
+  setupIpcHandlers();
+
+  // Créer la fenêtre
+  createWindow();
+};
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', initializeApp);
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
+  // Fermer le pool de connexions MySQL
+  await closePool();
+  
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -54,6 +120,11 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
+});
+
+// Fermer proprement la connexion à la base de données à l'arrêt
+app.on('before-quit', async () => {
+  await closePool();
 });
 
 // In this file you can include the rest of your app's specific main process
