@@ -2,7 +2,7 @@
 import React from 'react';
 import './index.css';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { AuthPage } from './components/Auth/AuthPage';
+import { AuthPage } from './middleware/AuthPage';
 
 const AppContent = () => {
   const { user, logout, isLoading } = useAuth();

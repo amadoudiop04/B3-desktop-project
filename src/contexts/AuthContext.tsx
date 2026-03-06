@@ -20,70 +20,86 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Charger l'utilisateur depuis localStorage au montage
+  // Charger l'utilisateur actuel au montage
   useEffect(() => {
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    const loadCurrentUser = async () => {
+      try {
+        if (window.electronAPI) {
+          const response = await window.electronAPI.getCurrentUser();
+          if (response.success && response.user) {
+            setUser({
+              id: response.user.id.toString(),
+              email: response.user.email,
+              username: response.user.username,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement de l\'utilisateur:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCurrentUser();
   }, []);
 
   const login = async (email: string, password: string) => {
-    // Récupérer les utilisateurs depuis localStorage
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const foundUser = users.find((u: any) => u.email === email && u.password === password);
+    try {
+      if (!window.electronAPI) {
+        throw new Error('API Electron non disponible');
+      }
 
-    if (!foundUser) {
-      throw new Error('Email ou mot de passe incorrect');
+      const response = await window.electronAPI.login(email, password);
+
+      if (!response.success) {
+        throw new Error(response.error || 'Erreur de connexion');
+      }
+
+      setUser({
+        id: response.user.id.toString(),
+        email: response.user.email,
+        username: response.user.username,
+      });
+    } catch (error) {
+      console.error('Erreur lors de la connexion:', error);
+      throw error;
     }
-
-    const loggedInUser = {
-      id: foundUser.id,
-      email: foundUser.email,
-      username: foundUser.username,
-    };
-
-    setUser(loggedInUser);
-    localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
   };
 
   const register = async (username: string, email: string, password: string) => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    try {
+      if (!window.electronAPI) {
+        throw new Error('API Electron non disponible');
+      }
 
-    // Vérifier si l'email existe déjà
-    if (users.some((u: any) => u.email === email)) {
-      throw new Error('Cet email est déjà utilisé');
+      const response = await window.electronAPI.register(username, email, password);
+
+      if (!response.success) {
+        throw new Error(response.error || 'Erreur lors de l\'inscription');
+      }
+
+      setUser({
+        id: response.user.id.toString(),
+        email: response.user.email,
+        username: response.user.username,
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'inscription:', error);
+      throw error;
     }
-
-    if (password.length < 6) {
-      throw new Error('Le mot de passe doit contenir au moins 6 caractères');
-    }
-
-    const newUser = {
-      id: Date.now().toString(),
-      username,
-      email,
-      password, // En production, il faudrait hasher le mot de passe
-    };
-
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-
-    // Connecter automatiquement après l'inscription
-    const loggedInUser = {
-      id: newUser.id,
-      email: newUser.email,
-      username: newUser.username,
-    };
-
-    setUser(loggedInUser);
-    localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('currentUser');
+  const logout = async () => {
+    try {
+      if (window.electronAPI) {
+        await window.electronAPI.logout();
+      }
+      setUser(null);
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+      setUser(null);
+    }
   };
 
   return (
