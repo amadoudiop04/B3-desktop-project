@@ -1,11 +1,15 @@
 // src/App.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import './index.css';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AuthPage } from './middleware/AuthPage';
+import { PaymentPage } from './components/Payment/PaymentPage'; // Assurez-vous que ce chemin est correct
 
 const AppContent = () => {
   const { user, logout, isLoading } = useAuth();
+  
+  // Nouvel état pour gérer l'affichage de la page de paiement
+  const [currentPage, setCurrentPage] = useState<'home' | 'payment'>('home');
 
   if (isLoading) {
     return (
@@ -19,6 +23,11 @@ const AppContent = () => {
 
   if (!user) {
     return <AuthPage />;
+  }
+
+  // Si on a cliqué sur le panier, on affiche la page de paiement
+  if (currentPage === 'payment') {
+    return <PaymentPage onBack={() => setCurrentPage('home')} />;
   }
 
   return (
@@ -135,7 +144,8 @@ const AppContent = () => {
                 <p className="text-sm font-semibold mb-1">Pro Kit Libéro 04</p>
                 <div className="flex items-center justify-between">
                   <span className="text-blue-500 font-bold">€64.99</span>
-                  <button className="text-gray-400 hover:text-white">🛒</button>
+                  {/* Action ajoutée ici pour rediriger vers la page de paiement */}
+                  <button onClick={() => setCurrentPage('payment')} className="text-gray-400 hover:text-white">🛒</button>
                 </div>
               </div>
             </div>
@@ -149,7 +159,8 @@ const AppContent = () => {
                 <p className="text-sm font-semibold mb-1">Coquille "Roaahl"</p>
                 <div className="flex items-center justify-between">
                   <span className="text-blue-500 font-bold">€56.99</span>
-                  <button className="text-gray-400 hover:text-white">🛒</button>
+                  {/* Action ajoutée ici pour rediriger vers la page de paiement */}
+                  <button onClick={() => setCurrentPage('payment')} className="text-gray-400 hover:text-white">🛒</button>
                 </div>
               </div>
             </div>
