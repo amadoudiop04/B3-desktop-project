@@ -5,7 +5,6 @@ import fond from './assets/images/fond couleur.jpg';
 import deleteIcon from './assets/icon/poubelle.png';
 import backIcon from './assets/icon/back.png'
 const CartPage = () => {
-    // 1. Initialisation des données du panier
     const [cartItems, setCartItems] = useState([
         {
             id: 1,
@@ -25,7 +24,6 @@ const CartPage = () => {
         }
     ]);
 
-    // 2. Fonctions pour modifier la quantité
     const updateQuantity = (id: number, delta: number) => {
         setCartItems(prevItems =>
             prevItems.map(item =>
@@ -36,7 +34,6 @@ const CartPage = () => {
         );
     };
 
-    // 3. Calculs automatiques
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
     return (
@@ -64,19 +61,12 @@ const CartPage = () => {
                                 <p className="text-blue-500 font-bold mt-2">{item.price.toFixed(2)} €</p>
                             </div>
 
-                            {/* COMPTEUR INTERACTIF */}
                             <div className="flex items-center bg-black rounded-full p-1 gap-3 border border-gray-800">
-                                <button
-                                    onClick={() => updateQuantity(item.id, -1)}
-                                    className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
-                                >
+                                <button onClick={() => updateQuantity(item.id, -1)} className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
                                     -
                                 </button>
                                 <span className="text-xs font-bold w-3 text-center">{item.quantity}</span>
-                                <button
-                                    onClick={() => updateQuantity(item.id, 1)}
-                                    className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-500 transition-transform active:scale-90"
-                                >
+                                <button onClick={() => updateQuantity(item.id, 1)} className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-500 transition-transform active:scale-90">
                                     +
                                 </button>
                             </div>
@@ -88,7 +78,6 @@ const CartPage = () => {
                     )}
                 </div>
 
-                {/* Résumé de commande mis à jour dynamiquement */}
                 <div className="mt-8 bg-[#111e31] border border-gray-800 rounded-3xl p-6 relative overflow-hidden">
                     <h2 className="text-xs font-bold text-gray-500 tracking-wider mb-6 uppercase">Résumé de la commande</h2>
 
@@ -118,18 +107,13 @@ const CartPage = () => {
                 </div>
 
                 <div className="mt-4 flex gap-3">
-                    <input
-                        type="text"
-                        placeholder="CODE PROMO"
-                        className="flex-1 bg-[#111e31] border border-gray-800 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-blue-500"
-                    />
+                    <input type="text" placeholder="CODE PROMO" className="flex-1 bg-[#111e31] border border-gray-800 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-blue-500" />
                     <button className="bg-[#1a2942] px-6 rounded-xl text-[10px] font-bold text-gray-400 hover:text-white uppercase transition-colors">
                         Appliquer
                     </button>
                 </div>
             </main>
 
-            {/* Bottom Navigation */}
             <nav className="fixed bottom-0 left-0 right-0 bg-[#0d1b2e] border-t border-gray-800 px-2 py-3">
                 <div className="flex justify-around items-center max-w-md mx-auto">
                     <button className="flex flex-col items-center gap-1 text-blue-500">

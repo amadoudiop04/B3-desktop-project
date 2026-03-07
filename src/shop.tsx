@@ -11,7 +11,6 @@ const ShopPage: React.FC = () => {
     const [activeCategory, setActiveCategory] = useState('TOUS');
     const [searchQuery, setSearchQuery] = useState('');
 
-    // --- LOGIQUE D'AJOUT ---
     const addToCart = (product: any) => {
         setCartItems(prev => {
             const existing = prev.find(item => item.name === product.name);
@@ -22,7 +21,6 @@ const ShopPage: React.FC = () => {
             }
             return [...prev, { ...product, id: Date.now(), quantity: 1, desc: "Taille: Unique" }];
         });
-        // Feedback visuel au lieu d'une alerte (plus moderne)
         console.log(`${product.name} ajouté !`);
     };
 
@@ -39,7 +37,6 @@ const ShopPage: React.FC = () => {
         return matchesCategory && matchesSearch;
     });
 
-    // Calcul du nombre total d'articles pour le badge
     const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
     return (
@@ -69,20 +66,16 @@ const ShopPage: React.FC = () => {
 
             `}</style>
 
-            {/* --- HEADER --- */}
             <header style={{ padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <div className="menu-icon"><div></div><div></div><div></div></div>
                 <div className="logo">EA SPORTS<span>.</span>SHOP</div>
                 <div className="header-icons">
-                    <span>🔍</span>
-                    {/* Le badge affiche maintenant le nombre réel d'articles */}
                     <div style={{ position: 'relative', cursor: 'pointer' }}>
                         🛒{totalItems > 0 && <span className="badge">{totalItems}</span>}
                     </div>
                 </div>
             </header>
 
-            {/* --- SEARCH --- */}
             <div style={{ padding: '15px' }}>
                 <input
                     type="text"
@@ -93,7 +86,6 @@ const ShopPage: React.FC = () => {
                 />
             </div>
 
-            {/* --- CATEGORIES --- */}
             <div className="categories">
                 {['TOUS', 'MAILLOTS', 'SWEATS', 'ACCESSOIRES'].map((cat) => (
                     <button key={cat} className={`cat-btn ${activeCategory === cat ? 'active' : ''}`} onClick={() => setActiveCategory(cat)}>
@@ -102,7 +94,6 @@ const ShopPage: React.FC = () => {
                 ))}
             </div>
 
-            {/* --- HERO --- */}
             <div className="hero" style={{
                 backgroundImage: `linear-gradient(to right, rgba(26, 41, 66, 0.9), rgba(10, 22, 40, 0.4)), url(${collection})`,
                 backgroundSize: 'cover',
@@ -115,7 +106,15 @@ const ShopPage: React.FC = () => {
                 </button>
             </div>
 
-            {/* --- GRID --- */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', marginTop: '10px' }}>
+                <h2 style={{ fontSize: '1rem', fontWeight: '900', margin: 0, letterSpacing: '0.5px' }}>
+                    MEILLEURES VENTES
+                </h2>
+                <span style={{ color: '#0D7FF2', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                    Voir Tout
+                </span>
+            </div>
+
             <div className="products-grid">
                 {filteredProducts.map((p, i) => (
                     <div key={i} className="product-card">
@@ -130,7 +129,6 @@ const ShopPage: React.FC = () => {
                                     {p.oldPrice && <span style={{ color: '#4b5563', textDecoration: 'line-through', fontSize: '10px' }}>${p.oldPrice}</span>}
                                     <span className="price" style={{ fontSize: '1.2rem' }}>${p.price}</span>
                                 </div>
-                                {/* CLIC SUR LE BOUTON D'AJOUT */}
                                 <button className="add-btn" onClick={() => addToCart(p)}>🛒</button>
                             </div>
                         </div>
@@ -138,7 +136,6 @@ const ShopPage: React.FC = () => {
                 ))}
             </div>
 
-            {/* --- NEWSLETTER --- */}
             <div className="newsletter">
                 <h3>REJOIGNEZ LE CLUB PRIVÉ</h3>
                 <p style={{ marginBottom: '20px', fontSize: '0.8rem', opacity: 0.8 }}>Accès prioritaire et -15% sur votre première commande.</p>
@@ -146,7 +143,6 @@ const ShopPage: React.FC = () => {
                 <button>S'INSCRIRE MAINTENANT</button>
             </div>
 
-            {/* Bottom Navigation */}
             <nav className="fixed bottom-0 left-0 right-0 bg-[#0d1b2e] border-t border-gray-800 px-2 py-3">
                 <div className="flex justify-around items-center max-w-md mx-auto">
                     <button className="flex flex-col items-center gap-1 text-blue-500">
