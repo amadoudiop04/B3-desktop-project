@@ -36,6 +36,13 @@ export interface ElectronAPI {
   logout: () => Promise<{ success: boolean }>;
   getUserStats: (userId: number) => Promise<StatsResponse>;
   saveUserStats: (stats: UserStats) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (userId: number, updates: {
+    username?: string;
+    email?: string;
+    riotId?: string;
+    tagLine?: string;
+  }) => Promise<AuthResponse>;
+  updatePassword: (userId: number, newPassword: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 declare global {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './index.css';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AuthPage } from './middleware/AuthPage';
@@ -7,10 +7,45 @@ import { Navigation } from './components/Navigation';
 import { Footer } from './components/Footer';
 import { HomePage } from './pages/HomePage';
 import { StatsPage } from './pages/statsPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
+import TournamentPage from './pages/TournamentPage';
 
 const AppContent = () => {
   const { user, logout, isLoading } = useAuth();
   const [currentPage, setCurrentPage] = useState('home');
+  const [hasPlayedLoginSound, setHasPlayedLoginSound] = useState(false);
+
+  useEffect(() => {
+    // Jouer un son de connexion
+    if (user && !hasPlayedLoginSound) {
+      const soundEnabled = window.localStorage.getItem('settings-sound');
+      if (soundEnabled === 'true' || soundEnabled === null) {
+        try {
+          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+
+          // Créer une mélodie simple
+          oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.1);
+
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.4);
+
+          setHasPlayedLoginSound(true);
+        } catch (err) {
+          console.error('Error playing login sound:', err);
+        }
+      }
+    }
+  }, [user, hasPlayedLoginSound]);
 
   if (isLoading) {
     return (
@@ -28,11 +63,14 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen bg-[#061325] text-white flex flex-col">
-      {currentPage === 'home' && <Header username={user.username} />}
-      {currentPage === 'home' && <HomePage />}
+      {currentPage !== 'tournaments' && <Header username={user.username} onNavigate={setCurrentPage} />}
+      {currentPage === 'home' && <HomePage onNavigate={setCurrentPage} />}
       {currentPage === 'stats' && <StatsPage user={user} onNavigate={setCurrentPage} />}
-      <Footer />
-      <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />
+      {currentPage === 'profile' && <ProfilePage user={user} onLogout={logout} onNavigate={setCurrentPage} />}
+      {currentPage === 'settings' && <SettingsPage user={user} onNavigate={setCurrentPage} />}
+      {currentPage === 'tournaments' && <TournamentPage onNavigate={setCurrentPage} />}
+      {currentPage !== 'tournaments' && <Footer />}
+      {currentPage !== 'tournaments' && <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />}
     </div>
   );
 };

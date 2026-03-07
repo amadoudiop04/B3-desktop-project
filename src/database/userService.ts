@@ -216,6 +216,58 @@ export const updateUserValorantInfo = async (
     throw error;
   }
 };
+
+/**
+ * Mettre à jour le profil d'un utilisateur (username, riot_id, tag_line)
+ */
+export const updateUserProfile = async (
+  userId: number,
+  username?: string,
+  email?: string,
+  riotId?: string,
+  tagLine?: string
+): Promise<User | null> => {
+  try {
+    const pool = getPool();
+    const updates: string[] = [];
+    const values: Array<string | number> = [];
+
+    if (username !== undefined) {
+      updates.push('username = ?');
+      values.push(username);
+    }
+    if (email !== undefined) {
+      const existingUser = await findUserByEmail(email);
+      if (existingUser && existingUser.id !== userId) {
+        throw new Error('Cet email est déjà utilisé');
+      }
+      updates.push('email = ?');
+      values.push(email);
+    }
+    if (riotId !== undefined) {
+      updates.push('riot_id = ?');
+      values.push(riotId);
+    }
+    if (tagLine !== undefined) {
+      updates.push('tag_line = ?');
+      values.push(tagLine);
+    }
+
+    if (updates.length === 0) {
+      return await findUserById(userId);
+    }
+
+    values.push(userId);
+    const query = `UPDATE users SET ${updates.join(', ')} WHERE id = ?`;
+
+    await pool.execute<ResultSetHeader>(query, values);
+
+    return await findUserById(userId);
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du profil:', error);
+    throw error;
+  }
+};
 /**
  * Obtenir les stats Valorant d'un utilisateur
  */

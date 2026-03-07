@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { testConnection, closePool } from './database/connection';
-import { createUser, authenticateUser, findUserById } from './database/userService';
+import { createUser, authenticateUser, updateUserPassword, updateUserProfile } from './database/userService';
 import { getUserStats, saveUserStats } from './database/statsService';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -103,6 +103,35 @@ const setupIpcHandlers = () => {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Erreur lors de la sauvegarde des stats',
+      };
+    }
+  });
+
+  // Mettre à jour le profil utilisateur
+  ipcMain.handle('user:updateProfile', async (_event, userId: number, updates: { username?: string; email?: string; riotId?: string; tagLine?: string }) => {
+    try {
+      const updatedUser = await updateUserProfile(userId, updates.username, updates.email, updates.riotId, updates.tagLine);
+      if (updatedUser && currentUser && currentUser.id === userId) {
+        currentUser = updatedUser;
+      }
+      return { success: true, user: updatedUser };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la mise à jour du profil',
+      };
+    }
+  });
+
+  // Mettre à jour le mot de passe utilisateur
+  ipcMain.handle('user:updatePassword', async (_event, userId: number, newPassword: string) => {
+    try {
+      const updated = await updateUserPassword(userId, newPassword);
+      return { success: updated };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la mise à jour du mot de passe',
       };
     }
   });

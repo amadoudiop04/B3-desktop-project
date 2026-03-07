@@ -1,9 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-interface User {
+export interface User {
   id: string;
   email: string;
   username: string;
+  riotId?: string;
+  tagLine?: string;
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -20,6 +23,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const mapUserFromApi = (apiUser: {
+    id: number;
+    email: string;
+    username: string;
+    riot_id?: string;
+    tag_line?: string;
+    created_at?: string | Date;
+  }): User => ({
+    id: apiUser.id.toString(),
+    email: apiUser.email,
+    username: apiUser.username,
+    riotId: apiUser.riot_id,
+    tagLine: apiUser.tag_line,
+    createdAt: apiUser.created_at
+      ? new Date(apiUser.created_at).toISOString()
+      : undefined,
+  });
+
   // Charger l'utilisateur actuel au montage
   useEffect(() => {
     const loadCurrentUser = async () => {
@@ -27,11 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (window.electronAPI) {
           const response = await window.electronAPI.getCurrentUser();
           if (response.success && response.user) {
-            setUser({
-              id: response.user.id.toString(),
-              email: response.user.email,
-              username: response.user.username,
-            });
+            setUser(mapUserFromApi(response.user));
           }
         }
       } catch (error) {
@@ -56,11 +73,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(response.error || 'Erreur de connexion');
       }
 
-      setUser({
-        id: response.user.id.toString(),
-        email: response.user.email,
-        username: response.user.username,
-      });
+      if (!response.user) {
+        throw new Error('Utilisateur introuvable');
+      }
+
+      setUser(mapUserFromApi(response.user));
     } catch (error) {
       console.error('Erreur lors de la connexion:', error);
       throw error;
@@ -79,11 +96,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(response.error || 'Erreur lors de l\'inscription');
       }
 
-      setUser({
-        id: response.user.id.toString(),
-        email: response.user.email,
-        username: response.user.username,
-      });
+      if (!response.user) {
+        throw new Error('Utilisateur introuvable');
+      }
+
+      setUser(mapUserFromApi(response.user));
     } catch (error) {
       console.error('Erreur lors de l\'inscription:', error);
       throw error;

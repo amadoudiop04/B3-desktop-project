@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { Avatar } from '../components/Avatar';
 
 interface User {
   id: string;
@@ -463,11 +464,7 @@ export const StatsPage: React.FC<StatsPageProps> = ({ user, onNavigate }) => {
         <div className="flex flex-col items-center">
           {/* Avatar */}
           <div className="relative mb-4">
-            <div className="w-24 h-24 rounded-full bg-linear-to-br from-cyan-400 to-blue-600 p-1">
-              <div className="w-full h-full rounded-full bg-[#1e293b] flex items-center justify-center text-4xl">
-                👤
-              </div>
-            </div>
+            <Avatar username={user.username} size="lg" showBorder />
             <div className="absolute bottom-0 right-0 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs">
               ✓
             </div>

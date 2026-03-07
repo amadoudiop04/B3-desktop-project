@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HeroSection } from '../components/HeroSection';
+import { HeroSection } from '../components/StreamCard';
 import { CompetitionCard } from '../components/CompetitionCard';
 import { PerformanceCard } from '../components/PerformanceCard';
 import { ProductCard } from '../components/ProductCard';
 
-export const HomePage: React.FC = () => {
+export const HomePage: React.FC<{ onNavigate?: (page: string) => void }> = ({ onNavigate }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -165,6 +165,16 @@ export const HomePage: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold">Compétitions à venir</h2>
           <div className="flex gap-2">
+            {onNavigate && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onNavigate('tournaments')}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold text-sm transition-all text-white"
+              >
+                🏆 Tous les tournois
+              </motion.button>
+            )}
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}

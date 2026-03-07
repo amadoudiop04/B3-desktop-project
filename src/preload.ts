@@ -29,27 +29,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
     kd_ratio: number;
     avg_damage: number;
   }) => ipcRenderer.invoke('stats:saveUserStats', stats),
+
+  // Profile
+  updateProfile: (userId: number, updates: {
+    username?: string;
+    email?: string;
+    riotId?: string;
+    tagLine?: string;
+  }) => ipcRenderer.invoke('user:updateProfile', userId, updates),
+
+  updatePassword: (userId: number, newPassword: string) =>
+    ipcRenderer.invoke('user:updatePassword', userId, newPassword),
 });
-
-// Types pour TypeScript
-export interface ElectronAPI {
-  login: (email: string, password: string) => Promise<any>;
-  register: (username: string, email: string, password: string) => Promise<any>;
-  getCurrentUser: () => Promise<any>;
-  logout: () => Promise<void>;
-  getUserStats: (userId: number) => Promise<any>;
-  saveUserStats: (stats: {
-    user_id: number;
-    rank_name: string;
-    rank_rating: number;
-    win_rate: number;
-    kd_ratio: number;
-    avg_damage: number;
-  }) => Promise<any>;
-}
-
-declare global {
-  interface Window {
-    electronAPI: ElectronAPI;
-  }
-}
