@@ -1,8 +1,13 @@
 // src/App.tsx
 import React from 'react';
+import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import ShopPage from './ShopPage';
 import './index.css';
 
-const App = () => {
+const HomePage = () => {
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
   return (
     <div className="min-h-screen bg-[#0a1628] text-white flex flex-col">
       {/* Header */}
@@ -136,10 +141,10 @@ const App = () => {
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-[#0d1b2e] border-t border-gray-800 px-2 py-3">
         <div className="flex justify-around items-center max-w-md mx-auto">
-          <button className="flex flex-col items-center gap-1 text-blue-500">
+          <Link to="/" className={`flex flex-col items-center gap-1 ${isHome ? 'text-blue-500' : 'text-gray-400 hover:text-white'}`}>
             <span className="text-xl">🏠</span>
             <span className="text-xs font-semibold">Accueil</span>
-          </button>
+          </Link>
           <button className="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
             <span className="text-xl">📊</span>
             <span className="text-xs">Stats</span>
@@ -148,10 +153,10 @@ const App = () => {
             <span className="text-xl">👥</span>
             <span className="text-xs">Équipes</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
+          <Link to="/shop" className="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
             <span className="text-xl">🎲</span>
             <span className="text-xs">Shop</span>
-          </button>
+          </Link>
           <button className="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
             <span className="text-xl">👤</span>
             <span className="text-xs">Profil</span>
@@ -159,6 +164,16 @@ const App = () => {
         </div>
       </nav>
     </div>
+  );
+};
+
+const App = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/shop" element={<ShopPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 };
 
