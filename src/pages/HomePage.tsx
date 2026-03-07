@@ -230,6 +230,7 @@ export const HomePage: React.FC<{ onNavigate?: (page: string) => void }> = ({ on
               discount={product.discount}
               image={product.image}
               index={index}
+              onNavigate={onNavigate}
             />
           ))}
         </div>

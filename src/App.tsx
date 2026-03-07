@@ -10,6 +10,7 @@ import { StatsPage } from './pages/statsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import TournamentPage from './pages/TournamentPage';
+import { PaymentPage } from './pages/PaymentPage';
 
 const AppContent = () => {
   const { user, logout, isLoading } = useAuth();
@@ -61,6 +62,7 @@ const AppContent = () => {
     return <AuthPage />;
   }
 
+
   return (
     <div className="min-h-screen bg-[#061325] text-white flex flex-col">
       {currentPage !== 'tournaments' && <Header username={user.username} onNavigate={setCurrentPage} />}
@@ -69,6 +71,7 @@ const AppContent = () => {
       {currentPage === 'profile' && <ProfilePage user={user} onLogout={logout} onNavigate={setCurrentPage} />}
       {currentPage === 'settings' && <SettingsPage user={user} onNavigate={setCurrentPage} />}
       {currentPage === 'tournaments' && <TournamentPage onNavigate={setCurrentPage} />}
+      {currentPage === 'payment' && <PaymentPage onNavigate={setCurrentPage} />}
       {currentPage !== 'tournaments' && <Footer />}
       {currentPage !== 'tournaments' && <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />}
     </div>

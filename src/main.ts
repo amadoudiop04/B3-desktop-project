@@ -10,6 +10,28 @@ if (started) {
   app.quit();
 }
 
+// Désactiver les erreurs de cache GPU sur Windows
+app.commandLine.appendSwitch('disable-gpu-shader-disk-cache');
+app.commandLine.appendSwitch('disable-gpu-compositing');
+app.commandLine.appendSwitch('disable-software-rasterizer');
+app.commandLine.appendSwitch('no-sandbox');
+
+// S'assurer qu'une seule instance de l'app tourne pour éviter les conflits de cache
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+}
+
+app.on('second-instance', () => {
+  // Si quelqu'un essaie d'ouvrir une 2e instance, focus sur la fenêtre existante
+  const windows = BrowserWindow.getAllWindows();
+  if (windows.length > 0) {
+    const mainWindow = windows[0];
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+  }
+});
+
 // Stocker l'utilisateur actuellement connecté
 let currentUser: any = null;
 

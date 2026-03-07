@@ -7,6 +7,7 @@ interface ProductCardProps {
   discount?: string;
   image: string;
   index: number;
+  onNavigate?: (page: string) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -15,6 +16,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   discount,
   image,
   index,
+  onNavigate,
 }) => {
   return (
     <motion.div
@@ -46,7 +48,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <p className="text-sm font-semibold mb-1">{name}</p>
         <div className="flex items-center justify-between">
           <span className="text-blue-500 font-bold">{price}</span>
-          <button className="text-gray-400 hover:text-white transition">
+          <button onClick={() => onNavigate?.('payment')} className="text-gray-400 hover:text-white transition">
             🛒
           </button>
         </div>
