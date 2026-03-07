@@ -30,7 +30,7 @@ const App = () => {
       <main className="flex-1 overflow-y-auto px-4 pb-20">
         {/* Hero Section */}
         <section className="mt-4 bg-gradient-to-br from-[#1a2942] to-[#0d1b2e] rounded-2xl p-6 border border-gray-800">
-          <h1 className="text-2xl font-bold mb-1">VALORANT CHAMPIONS<br/>TOUR</h1>
+          <h1 className="text-2xl font-bold mb-1">VALORANT CHAMPIONS<br />TOUR</h1>
           <p className="text-sm text-gray-400 mb-4">GrandsFinals - Finale vs LOUD</p>
           <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2">
             ▶ Regarder Maintenant
@@ -43,7 +43,7 @@ const App = () => {
             <h2 className="text-lg font-bold">Aperçu des performances</h2>
             <button className="text-xs text-blue-500">Détails complets →</button>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             {/* Radiant Card */}
             <div className="bg-[#1a2942] rounded-xl p-4 border border-gray-800">
@@ -78,7 +78,7 @@ const App = () => {
             <h2 className="text-lg font-bold">Compétitions à venir</h2>
             <button className="text-blue-500">→</button>
           </div>
-          
+
           <div className="bg-[#1a2942] rounded-xl p-4 border border-gray-800">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs bg-blue-600 px-2 py-1 rounded">TOURNOI FIFA</span>
@@ -95,7 +95,7 @@ const App = () => {
         {/* Trending Shop */}
         <section className="mt-6 mb-4">
           <h2 className="text-lg font-bold mb-3">Tendances Boutique</h2>
-          
+
           <div className="grid grid-cols-2 gap-4">
             {/* Product 1 */}
             <div className="bg-[#1a2942] rounded-xl overflow-hidden border border-gray-800">
@@ -150,7 +150,7 @@ const App = () => {
           </button>
           <button className="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
             <span className="text-xl">🎲</span>
-            <span className="text-xs">Parier</span>
+            <span className="text-xs">Shop</span>
           </button>
           <button className="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
             <span className="text-xl">👤</span>
