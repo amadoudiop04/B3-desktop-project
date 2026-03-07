@@ -216,7 +216,7 @@ const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigate }) => {
 
         {/* Join Tournament Button */}
         <button className="w-full bg-gradient-to-r from-blue-600 via-blue-600 to-purple-600 hover:from-blue-700 hover:via-blue-700 hover:to-purple-700 text-white py-4 rounded-full font-black text-lg transition-all shadow-lg hover:shadow-blue-500/50">
-          📋 REJOINDRE LE TOURNOI
+          📋 REJOINDRE LE TOURNOI 
         </button>
       </div>
     </div>
