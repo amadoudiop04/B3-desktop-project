@@ -14,31 +14,12 @@
 [Installation](#-installation) •
 [Configuration](#️-configuration) •
 [Utilisation](#-utilisation) •
-[Architecture](#-architecture)
 
 </div>
 
----
-
-## 📋 Sommaire
-
-- [À propos](#-à-propos)
-- [Fonctionnalités](#-fonctionnalités)
-- [Technologies](#-technologies)
-- [Prérequis](#-prérequis)
-- [Installation](#-installation)
-- [Configuration](#️-configuration)
-- [Utilisation](#-utilisation)
-- [Structure du projet](#-structure-du-projet)
-- [Base de données](#-base-de-données)
-- [Contribuer](#-contribuer)
-- [Licence](#-licence)
-
----
-
 ## 🎯 À propos
 
-**B3 Desktop** est une application desktop cross-platform développée avec Electron et React, dédiée à la communauté e-sport. Elle offre une expérience complète pour les joueurs, permettant de suivre leurs statistiques, participer à des tournois, acheter du merchandising et gérer leur profil.
+**B3 Desktop** est une application desktop cross-platform développée avec Electron et React, dédiée à la communauté e-sport. Elle offre une expérience complète pour les joueurs, permettant de suivre leurs statistiques, participer à des tournois, acheter des produits et gérer leur profil.
 
 ### Pourquoi ce projet ?
 
@@ -265,28 +246,6 @@ CREATE TABLE match_history (
 );
 ```
 
-#### 3. Insérer des données de test
-
-```sql
--- Produits de test
-INSERT INTO products (name, price, category, image_url, stock_quantity) VALUES
-('Maillot Valorant Champions', 59.99, 'MAILLOTS', 'https://example.com/jersey.jpg', 50),
-('Sweat à capuche TenZ', 79.99, 'SWEATS', 'https://example.com/hoodie.jpg', 30),
-('Casquette Sentinels', 29.99, 'ACCESSOIRES', 'https://example.com/cap.jpg', 100);
-
--- Utilisateurs de test
-INSERT INTO users (username, email, password) VALUES
-('ProGamer', 'gamer@test.com', '$2b$10$YourHashedPassword'),
-('Ninja', 'ninja@test.com', '$2b$10$YourHashedPassword');
-
--- Matchs de test
-INSERT INTO match_history (user_id, map_name, score_home, score_away, result, agent_played, kills, deaths, assists, played_at) VALUES
-(1, 'Haven', 13, 11, 'W', 'Jett', 28, 15, 4, NOW() - INTERVAL 1 HOUR),
-(1, 'Bind', 10, 13, 'L', 'Phoenix', 18, 21, 7, NOW() - INTERVAL 2 HOUR);
-```
-
----
-
 ## 💻 Utilisation
 
 ### Démarrer l'application en mode développement
@@ -409,15 +368,6 @@ B3-desktop-projet-electron/
 ## 🗄️ Base de données
 
 ### Schéma de la base de données
-
-```mermaid
-erDiagram
-    users ||--o{ user_stats : has
-    users ||--o{ orders : places
-    users ||--o{ match_history : plays
-    orders ||--|{ order_items : contains
-    products ||--o{ order_items : includes
-
     users {
         int id PK
         string username
@@ -485,51 +435,6 @@ erDiagram
 - Une **commande** contient plusieurs **articles**
 - Un **produit** peut être dans plusieurs **commandes**
 
----
-
-## 🔧 Fonctionnalités techniques
-
-### Architecture IPC (Inter-Process Communication)
-
-Communication sécurisée entre le process principal et le renderer :
-
-```typescript
-// Main Process (main.ts)
-ipcMain.handle('auth:login', async (_, email, password) => {
-  const user = await authenticateUser(email, password);
-  return { success: true, user };
-});
-
-// Preload Script (preload.ts)
-contextBridge.exposeInMainWorld('electronAPI', {
-  login: (email, password) => ipcRenderer.invoke('auth:login', email, password)
-});
-
-// Renderer Process (React)
-const result = await window.electronAPI.login(email, password);
-```
-
-### Gestion des transactions SQL
-
-```typescript
-const connection = await pool.getConnection();
-await connection.beginTransaction();
-
-try {
-  // Créer la commande
-  await connection.query('INSERT INTO orders...');
-  // Insérer les articles
-  await connection.query('INSERT INTO order_items...');
-  // Décrémenter le stock
-  await connection.query('UPDATE products...');
-  
-  await connection.commit();
-} catch (error) {
-  await connection.rollback();
-  throw error;
-}
-```
-
 ### Sécurité
 
 - ✅ Hashage des mots de passe (bcrypt, 10 rounds)
@@ -574,80 +479,9 @@ try {
 - [ ] Système de classement ELO
 - [ ] Matchmaking automatique
 
----
-
-## 🤝 Contribuer
-
-Les contributions sont les bienvenues ! Voici comment participer :
-
-1. **Forkez** le projet
-2. **Créez** une branche pour votre feature (`git checkout -b feature/AmazingFeature`)
-3. **Committez** vos changements (`git commit -m 'Add AmazingFeature'`)
-4. **Pushez** vers la branche (`git push origin feature/AmazingFeature`)
-5. **Ouvrez** une Pull Request
-
-### Guidelines
-
-- Suivez les conventions de code TypeScript
-- Ajoutez des tests pour les nouvelles fonctionnalités
-- Mettez à jour la documentation si nécessaire
-- Respectez le style de code existant (ESLint)
-
----
-
-## 📝 Licence
-
-Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
-```
-MIT License
-
-Copyright (c) 2026 AMADOU
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-...
-```
-
----
-
 ## 👨‍💻 Auteur
 
 **AMADOU**
-- GitHub: [@amadoudiop04](https://github.com/amadoudiop04)
-- Email: 147598248+amadoudiop04@users.noreply.github.com
-
----
-
-## 🙏 Remerciements
-
-- [Electron](https://www.electronjs.org/) - Framework desktop
-- [React](https://react.dev/) - Bibliothèque UI
-- [TailwindCSS](https://tailwindcss.com/) - Framework CSS
-- [Vite](https://vite.dev/) - Build tool
-- [MySQL](https://www.mysql.com/) - Base de données
-- [Framer Motion](https://www.framer.com/motion/) - Animations
-
----
 
 ## 📞 Support
-
-Si vous avez des questions ou rencontrez des problèmes :
-
-1. Consultez la [documentation](#-sommaire)
-2. Ouvrez une [issue](https://github.com/amadoudiop04/B3-desktop-projet-electron/issues)
-3. Contactez-moi par email
-
----
-
-<div align="center">
-
-**⭐ Si ce projet vous a aidé, n'hésitez pas à lui donner une étoile ! ⭐**
-
-Made with ❤️ by AMADOU
-
-</div>
+ Contactez-moi par email
