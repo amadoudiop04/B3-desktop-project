@@ -29,6 +29,7 @@
     "@electron-forge/plugin-vite": "^7.11.1",
     "@electron/fuses": "^1.8.0",
     "@tailwindcss/postcss": "^4.1.18",
+    "@types/bcryptjs": "^2.4.6",
     "@types/electron-squirrel-startup": "^1.0.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -45,7 +46,11 @@
     "vite": "^5.4.21"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.3.1",
     "electron-squirrel-startup": "^1.0.1",
+    "framer-motion": "^12.34.2",
+    "mysql2": "^3.19.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   }
