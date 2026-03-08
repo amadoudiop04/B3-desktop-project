@@ -394,14 +394,6 @@ export const StatsPage: React.FC<StatsPageProps> = ({ user, onNavigate }) => {
         </div>
         <span className="text-sm font-bold tracking-wider">EA SPORTS // VALORANT</span>
         <div className="absolute right-0 z-50">
-          <button
-            type="button"
-            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-            aria-label="Ouvrir le menu"
-            className="w-10 h-10 bg-[#1e293b] rounded-full flex items-center justify-center border border-gray-700 hover:bg-gray-700 transition"
-          >
-            <span className="text-lg">⚙️</span>
-          </button>
 
           {isSettingsOpen && (
             <div

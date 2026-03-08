@@ -511,6 +511,15 @@ npm run publish
    - Modifiez vos informations
    - Changez votre mot de passe
 
+### 🧪 Tester le code promo
+
+Le champ `CODE PROMO` est disponible dans la page `Panier`.
+
+Codes actuellement reconnus :
+- `ESPORT10` (-10%)
+- `BIENVENUE` (-15%)
+- `VIP20` (-20%)
+- `PROMO5` (-5%)
 ---
 
 ## 📁 Structure du projet
