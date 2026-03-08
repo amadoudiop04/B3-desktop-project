@@ -44,4 +44,53 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Products
   getProducts: () =>
     ipcRenderer.invoke('products:getProducts'),
+
+  // Orders
+  createOrder: (orderData: {
+    user_id: number;
+    total_ttc: number;
+    payment_method: 'Card' | 'PayPal' | 'Crypto';
+    items: Array<{
+      product_id: number;
+      quantity: number;
+      price_at_purchase: number;
+    }>;
+  }) => ipcRenderer.invoke('orders:create', orderData),
+
+  getUserOrders: (userId: number) =>
+    ipcRenderer.invoke('orders:getUserOrders', userId),
+
+  updateOrderStatus: (orderId: number, status: string) =>
+    ipcRenderer.invoke('orders:updateStatus', orderId, status),
+
+  getOrderDetails: (orderId: number) =>
+    ipcRenderer.invoke('orders:getDetails', orderId),
+
+  // Matches
+  getAllMatches: () =>
+    ipcRenderer.invoke('matches:getAll'),
+
+  getUserMatches: (userId: number) =>
+    ipcRenderer.invoke('matches:getUserMatches', userId),
+
+  getRecentMatches: (limit?: number) =>
+    ipcRenderer.invoke('matches:getRecent', limit),
+
+  getPlayerStats: (userId: number) =>
+    ipcRenderer.invoke('matches:getPlayerStats', userId),
+
+  createMatch: (matchData: {
+    user_id: number;
+    map_name: string;
+    score_home: number;
+    score_away: number;
+    result: string;
+    agent_played: string;
+    kills: number;
+    deaths: number;
+    assists: number;
+  }) => ipcRenderer.invoke('matches:create', matchData),
+
+  getLeaderboard: (limit?: number) =>
+    ipcRenderer.invoke('matches:getLeaderboard', limit),
 });

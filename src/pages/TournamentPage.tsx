@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import type { MatchWithUser } from '../types/electron';
 
 type TournamentStatus = 'upcoming' | 'ongoing' | 'finished';
 
@@ -27,6 +28,8 @@ const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigate }) => {
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationStep, setSimulationStep] = useState(0);
   const [simulationMessage, setSimulationMessage] = useState('');
+  const [recentMatches, setRecentMatches] = useState<MatchWithUser[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const bracketSectionRef = useRef<HTMLDivElement | null>(null);
   const simulationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -37,6 +40,25 @@ const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigate }) => {
     'Validation des slots tournoi...',
     'Inscription en cours de confirmation...'
   ];
+
+  // Charger les matchs récents depuis la base de données
+  const loadRecentMatches = async () => {
+    try {
+      setIsLoading(true);
+      const response = await window.electronAPI.getRecentMatches(8);
+      if (response.success && response.matches) {
+        setRecentMatches(response.matches as MatchWithUser[]);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des matchs:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadRecentMatches();
+  }, []);
 
   const handleScrollToBracket = () => {
     bracketSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -357,38 +379,104 @@ const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigate }) => {
           )}
         </div>
 
-        {/* Tournament Bracket Overview */}
+        {/* Tournament Bracket Overview - Matchs récents */}
         <div className="border border-slate-700 rounded-2xl p-8 mb-8 bg-[#111927]">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-white text-lg font-bold uppercase">
-              APERÇU DE L'ARBRE
+              📋 MATCHS RÉCENTS DU TOURNOI
             </h2>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition-colors">
-              QUARTS
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {/* Featured Brackets */}
-            <div className="border border-blue-500 rounded-xl p-6 bg-slate-800/50">
-              <p className="text-white font-bold text-lg mb-2">SENTINELS</p>
-              <p className="text-blue-400 font-black text-4xl">13</p>
-            </div>
-            <div className="border border-blue-500 rounded-xl p-6 bg-slate-800/50">
-              <p className="text-white font-bold text-lg mb-2">FINATIC</p>
-              <p className="text-blue-400 font-black text-4xl">20</p>
-            </div>
-
-            {/* Other Teams */}
-            <div className="border border-slate-600 rounded-xl p-6 bg-slate-800/30">
-              <p className="text-slate-400 font-bold text-lg mb-2">LOUD</p>
-              <p className="text-slate-400 font-black text-4xl">9</p>
-            </div>
-            <div className="border border-slate-600 rounded-xl p-6 bg-slate-800/30">
-              <p className="text-slate-400 font-bold text-lg mb-2">ZETA</p>
-              <p className="text-slate-400 font-black text-4xl">18</p>
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-600 text-white px-3 py-1 rounded-lg font-bold text-xs">
+                {recentMatches.length} MATCHS
+              </div>
+              <button
+                onClick={loadRecentMatches}
+                disabled={isLoading}
+                className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white px-4 py-1 rounded-lg font-bold text-xs transition-colors flex items-center gap-2"
+              >
+                {isLoading ? '⏳ Chargement...' : '🔄 Actualiser'}
+              </button>
             </div>
           </div>
+
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-slate-400 text-lg">Chargement des matchs...</p>
+            </div>
+          ) : recentMatches.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-slate-400 text-lg">Aucun match disponible</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recentMatches.map((match) => {
+                const isWin = match.result === 'win' || match.result === 'W';
+                const borderColor = isWin ? 'border-green-500' : 'border-red-500';
+                const bgColor = isWin ? 'bg-green-500/10' : 'bg-red-500/10';
+                
+                return (
+                  <div 
+                    key={match.id} 
+                    className={`border ${borderColor} rounded-xl p-6 ${bgColor} hover:scale-[1.02] transition-transform`}
+                  >
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="text-slate-400 text-xs font-bold uppercase">Joueur</p>
+                        <p className="text-white font-bold text-lg">{match.username || 'Inconnu'}</p>
+                      </div>
+                      <div className={`px-3 py-1 rounded-full text-xs font-black ${
+                        isWin ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                      }`}>
+                        {isWin ? '✓ VICTOIRE' : '✗ DÉFAITE'}
+                      </div>
+                    </div>
+
+                    {/* Map & Score */}
+                    <div className="border-t border-slate-700 pt-4 mb-4">
+                      <p className="text-slate-400 text-xs font-bold uppercase mb-2">Carte</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-blue-400 font-black text-xl">{match.map_name}</p>
+                        <div className="flex items-center gap-2">
+                          <div className="text-center">
+                            <p className="text-white font-black text-3xl">{match.score_home}</p>
+                            <p className="text-slate-500 text-xs">HOME</p>
+                          </div>
+                          <p className="text-slate-500 font-bold text-xl">:</p>
+                          <div className="text-center">
+                            <p className="text-white font-black text-3xl">{match.score_away}</p>
+                            <p className="text-slate-500 text-xs">AWAY</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="border-t border-slate-700 pt-4">
+                      <div className="flex items-center justify-between">
+                        <div className="text-center">
+                          <p className="text-slate-400 text-xs font-bold uppercase mb-1">Agent</p>
+                          <p className="text-white font-bold">{match.agent_played}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-slate-400 text-xs font-bold uppercase mb-1">K/D/A</p>
+                          <p className="text-white font-bold">
+                            {match.kills}/{match.deaths}/{match.assists}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-slate-400 text-xs font-bold uppercase mb-1">K/D</p>
+                          <p className="text-blue-400 font-bold">
+                            {match.deaths > 0 ? (match.kills / match.deaths).toFixed(2) : match.kills.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Join Tournament Button */}

@@ -12,16 +12,41 @@ import { SettingsPage } from './pages/SettingsPage';
 import TournamentPage from './pages/TournamentPage';
 import { PaymentPage } from './pages/PaymentPage';
 import { Product } from './components/ProductCard';
+import ShopPage from './pages/Shop';
+import PanierPage from './pages/PanierPage';
+
+interface CartItem {
+  id: number;
+  img: string;
+  name: string;
+  price: number;
+  category: string;
+  stock_quantity: number;
+  quantity: number;
+}
 
 const AppContent = () => {
   const { user, logout, isLoading } = useAuth();
   const [currentPage, setCurrentPage] = useState('home');
   const [hasPlayedLoginSound, setHasPlayedLoginSound] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const handleBuyProduct = (product: Product) => {
     setSelectedProduct(product);
     setCurrentPage('payment');
+  };
+
+  const handleCartUpdate = (items: CartItem[]) => {
+    setCartItems(items);
+  };
+
+  const handleCheckout = () => {
+    setCurrentPage('payment');
+  };
+
+  const handleClearCart = () => {
+    setCartItems([]);
   };
 
   useEffect(() => {
@@ -78,7 +103,9 @@ const AppContent = () => {
       {currentPage === 'profile' && <ProfilePage user={user} onLogout={logout} onNavigate={setCurrentPage} />}
       {currentPage === 'settings' && <SettingsPage user={user} onNavigate={setCurrentPage} />}
       {currentPage === 'tournaments' && <TournamentPage onNavigate={setCurrentPage} />}
-      {currentPage === 'payment' && <PaymentPage onNavigate={setCurrentPage} product={selectedProduct} />}
+      {currentPage === 'shop' && <ShopPage onNavigate={setCurrentPage} cartItems={cartItems} onCartUpdate={handleCartUpdate} />}
+      {currentPage === 'panier' && <PanierPage onNavigate={setCurrentPage} cartItems={cartItems} onCartUpdate={handleCartUpdate} onCheckout={handleCheckout} />}
+      {currentPage === 'payment' && <PaymentPage onNavigate={setCurrentPage} product={selectedProduct} cartItems={cartItems} onClearCart={handleClearCart} />}
       <Footer />
       <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />
     </div>

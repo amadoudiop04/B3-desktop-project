@@ -1,27 +1,126 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product } from '../components/ProductCard';
+import { useAuth } from '../contexts/AuthContext';
+
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  img: string;
+  category: string;
+  stock_quantity: number;
+  quantity: number;
+}
 
 // Interface pour accepter la fonction de navigation
 interface PaymentPageProps {
   onNavigate: (page: string) => void;
   product: Product | null;
+  cartItems?: CartItem[];
+  onClearCart?: () => void;
 }
 
-export const PaymentPage: React.FC<PaymentPageProps> = ({ onNavigate, product }) => {
+export const PaymentPage: React.FC<PaymentPageProps> = ({ onNavigate, product, cartItems = [], onClearCart }) => {
+  const { user } = useAuth();
   const [paymentMethod, setPaymentMethod] = useState<'carte' | 'paypal' | 'crypto'>('carte');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
 
-  // Extraire le prix numérique du produit
-  const getNumericPrice = (priceString: string): number => {
-    const match = priceString.match(/[\d.,]+/);
-    if (match) {
-      return parseFloat(match[0].replace(',', '.'));
+  // Calculer le total depuis le panier ou depuis un produit unique
+  const calculateTotal = (): number => {
+    if (cartItems.length > 0) {
+      return cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    }
+    if (product) {
+      const match = product.price.match(/[\d.,]+/);
+      if (match) {
+        return parseFloat(match[0].replace(',', '.'));
+      }
     }
     return 0;
   };
 
-  const subtotal = product ? getNumericPrice(product.price) : 0;
+  const subtotal = calculateTotal();
   const total = subtotal;
-  const currency = product?.price.includes('€') ? '€' : product?.price.includes('$') ? '$' : '€';
+  const currency = '€';
+  const totalItems = cartItems.length > 0 
+    ? cartItems.reduce((acc, item) => acc + item.quantity, 0) 
+    : (product ? 1 : 0);
+
+  // Fonction pour confirmer le paiement et créer la commande
+  const handleConfirmPayment = async () => {
+    if (!user) {
+      setOrderError('Utilisateur non connecté');
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      setOrderError('Le panier est vide');
+      return;
+    }
+
+    setIsProcessing(true);
+    setOrderError(null);
+
+    try {
+      // Mapper la méthode de paiement
+      const paymentMethodMap: { [key: string]: 'Card' | 'PayPal' | 'Crypto' } = {
+        carte: 'Card',
+        paypal: 'PayPal',
+        crypto: 'Crypto',
+      };
+
+      // Préparer les données de la commande
+      const orderData = {
+        user_id: Number(user.id), // S'assurer que c'est un nombre
+        total_ttc: total,
+        payment_method: paymentMethodMap[paymentMethod],
+        items: cartItems.map(item => ({
+          product_id: item.id,
+          quantity: item.quantity,
+          price_at_purchase: item.price,
+        })),
+      };
+
+      // Créer la commande
+      const response = await window.electronAPI.createOrder(orderData);
+
+      if (response.success) {
+        setOrderSuccess(true);
+        console.log(`✅ Commande #${response.orderId} créée avec succès`);
+        
+        // Vider le panier
+        onClearCart?.();
+        
+        // Rediriger vers la page d'accueil après 2 secondes
+        setTimeout(() => {
+          onNavigate('home');
+        }, 2000);
+      } else {
+        setOrderError(response.error || 'Erreur lors de la création de la commande');
+      }
+    } catch (error) {
+      console.error('Erreur lors du paiement:', error);
+      setOrderError('Une erreur est survenue lors du traitement du paiement');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Afficher la confirmation de succès
+  if (orderSuccess) {
+    return (
+      <div className="min-h-screen bg-[#0a1628] text-white flex items-center justify-center font-sans">
+        <div className="text-center">
+          <div className="mb-6 text-6xl">✅</div>
+          <h2 className="text-2xl font-bold mb-4">Commande confirmée !</h2>
+          <p className="text-gray-400 mb-6">Votre paiement a été traité avec succès.</p>
+          <p className="text-sm text-gray-500">Redirection...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a1628] text-white flex flex-col font-sans pb-20">
@@ -160,8 +259,36 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onNavigate, product })
           </form>
         )}
 
-        {/* Produit sélectionné */}
-        {product && (
+        {/* Produits du panier ou produit unique */}
+        {cartItems.length > 0 ? (
+          <section className="bg-[#132032] rounded-2xl p-4 mb-6 border border-[#1a2942]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Articles à acheter</h3>
+            <div className="space-y-3">
+              {cartItems.map((item) => (
+                <div key={item.id} className="flex items-center gap-4 pb-3 border-b border-[#1a2942] last:border-0 last:pb-0">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-900 to-[#0a1628] rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0">
+                    <img 
+                      src={item.img} 
+                      alt={item.name} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%232563eb%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E';
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-sm mb-1">{item.name}</h4>
+                    <p className="text-[10px] text-gray-500 uppercase">{item.category}</p>
+                    <div className="flex items-center justify-between mt-1">
+                      <p className="text-blue-500 font-bold">{item.price.toFixed(2)} €</p>
+                      <span className="text-xs text-gray-400">Qté: {item.quantity}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : product && (
           <section className="bg-[#132032] rounded-2xl p-4 mb-6 border border-[#1a2942]">
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Article à acheter</h3>
             <div className="flex items-center gap-4">
@@ -192,7 +319,9 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onNavigate, product })
         <section className="bg-[#132032] rounded-2xl p-5 mb-8 border border-[#1a2942]">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xs font-bold uppercase tracking-wider">Résumé de la commande</h3>
-            <span className="bg-blue-900/40 text-blue-400 text-[10px] font-bold px-2 py-1 rounded">1 ARTICLE</span>
+            <span className="bg-blue-900/40 text-blue-400 text-[10px] font-bold px-2 py-1 rounded">
+              {totalItems} ARTICLE{totalItems > 1 ? 'S' : ''}
+            </span>
           </div>
           
           <div className="space-y-3 text-sm mb-6">
@@ -219,9 +348,20 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onNavigate, product })
           </div>
         </section>
 
+        {/* Error Message */}
+        {orderError && (
+          <div className="bg-red-900/20 border border-red-500 rounded-xl p-4 mb-6 text-center">
+            <p className="text-red-400 text-sm">{orderError}</p>
+          </div>
+        )}
+
         {/* Action Button */}
-        <button className="w-full bg-[#3b82f6] hover:bg-blue-600 shadow-[0_4px_20px_rgba(59,130,246,0.3)] text-white font-bold py-4 rounded-xl tracking-wider mb-6 transition active:scale-[0.98]">
-          CONFIRMER LE PAIEMENT
+        <button 
+          onClick={handleConfirmPayment}
+          disabled={isProcessing || cartItems.length === 0}
+          className="w-full bg-[#3b82f6] hover:bg-blue-600 shadow-[0_4px_20px_rgba(59,130,246,0.3)] text-white font-bold py-4 rounded-xl tracking-wider mb-6 transition active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isProcessing ? 'TRAITEMENT EN COURS...' : 'CONFIRMER LE PAIEMENT'}
         </button>
       </main>
 

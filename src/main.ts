@@ -5,6 +5,8 @@ import { testConnection, closePool } from './database/connection';
 import { createUser, authenticateUser, updateUserPassword, updateUserProfile } from './database/userService';
 import { getUserStats, saveUserStats } from './database/statsService';
 import { getProducts } from './database/productService';
+import { createOrder, getUserOrders, updateOrderStatus, getOrderDetails } from './database/orderService';
+import { getAllMatches, getUserMatches, getRecentMatchesWithUsers, getPlayerStats, createMatch, getLeaderboard } from './database/matchService';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -65,6 +67,8 @@ const createWindow = () => {
 
 // IPC Handlers pour l'authentification
 const setupIpcHandlers = () => {
+  console.log('🔧 Enregistrement des IPC handlers...');
+  
   const channels = [
     'auth:login',
     'auth:register',
@@ -75,6 +79,16 @@ const setupIpcHandlers = () => {
     'products:getProducts',
     'user:updateProfile',
     'user:updatePassword',
+    'orders:create',
+    'orders:getUserOrders',
+    'orders:updateStatus',
+    'orders:getDetails',
+    'matches:getAll',
+    'matches:getUserMatches',
+    'matches:getRecent',
+    'matches:getPlayerStats',
+    'matches:create',
+    'matches:getLeaderboard',
   ];
 
   for (const channel of channels) {
@@ -187,12 +201,153 @@ const setupIpcHandlers = () => {
       };
     }
   });
+
+  // Créer une nouvelle commande
+  ipcMain.handle('orders:create', async (_event, orderData: any) => {
+    try {
+      console.log('📦 Création de commande:', orderData);
+      const orderId = await createOrder(orderData);
+      console.log('✅ Commande créée:', orderId);
+      return { success: true, orderId };
+    } catch (error) {
+      console.error('❌ Erreur lors de la création de commande:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la création de la commande',
+      };
+    }
+  });
+
+  // Récupérer les commandes d'un utilisateur
+  ipcMain.handle('orders:getUserOrders', async (_event, userId: number) => {
+    try {
+      const orders = await getUserOrders(userId);
+      return { success: true, orders };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la récupération des commandes',
+      };
+    }
+  });
+
+  // Mettre à jour le statut d'une commande
+  ipcMain.handle('orders:updateStatus', async (_event, orderId: number, status: string) => {
+    try {
+      const updated = await updateOrderStatus(orderId, status as 'Pending' | 'Paid' | 'Shipped');
+      return { success: updated };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la mise à jour du statut',
+      };
+    }
+  });
+
+  // Récupérer les détails d'une commande
+  ipcMain.handle('orders:getDetails', async (_event, orderId: number) => {
+    try {
+      const order = await getOrderDetails(orderId);
+      return { success: true, order };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la récupération des détails',
+      };
+    }
+  });
+
+  // Récupérer tous les matchs
+  ipcMain.handle('matches:getAll', async () => {
+    try {
+      const matches = await getAllMatches();
+      return { success: true, matches };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la récupération des matchs',
+      };
+    }
+  });
+
+  // Récupérer les matchs d'un utilisateur
+  ipcMain.handle('matches:getUserMatches', async (_event, userId: number) => {
+    try {
+      const matches = await getUserMatches(userId);
+      return { success: true, matches };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la récupération des matchs utilisateur',
+      };
+    }
+  });
+
+  // Récupérer les matchs récents avec infos utilisateur
+  ipcMain.handle('matches:getRecent', async (_event, limit: number = 20) => {
+    try {
+      const matches = await getRecentMatchesWithUsers(limit);
+      return { success: true, matches };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la récupération des matchs récents',
+      };
+    }
+  });
+
+  // Récupérer les statistiques d'un joueur
+  ipcMain.handle('matches:getPlayerStats', async (_event, userId: number) => {
+    try {
+      const stats = await getPlayerStats(userId);
+      return { success: true, stats };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la récupération des statistiques',
+      };
+    }
+  });
+
+  // Créer un nouveau match
+  ipcMain.handle('matches:create', async (_event, matchData: any) => {
+    try {
+      const matchId = await createMatch(matchData);
+      return { success: true, matchId };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la création du match',
+      };
+    }
+  });
+
+  // Récupérer le classement
+  ipcMain.handle('matches:getLeaderboard', async (_event, limit: number = 10) => {
+    try {
+      const leaderboard = await getLeaderboard(limit);
+      return { success: true, leaderboard };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la récupération du classement',
+      };
+    }
+  });
+
+  console.log('✅ Tous les IPC handlers ont été enregistrés');
 };
 
 // Initialiser l'application
 const initializeApp = async () => {
-  // Configurer les IPC handlers
-  setupIpcHandlers();
+  try {
+    // Configurer les IPC handlers
+    console.log('🔧 Démarrage de la configuration des handlers IPC...');
+    setupIpcHandlers();
+    console.log('✅ Handlers IPC configurés avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors de la configuration des handlers:', error);
+  }
 
   // Créer la fenêtre
   createWindow();

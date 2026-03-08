@@ -143,9 +143,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ user, onLogout, onNavi
           ←
         </button>
         <h1 className="text-sm font-extrabold uppercase tracking-wide">Mon profil</h1>
-        <button type="button" className="text-blue-400 transition hover:text-blue-300">
-          ⚙️
-        </button>
       </header>
 
       <section className="px-4 pt-6">

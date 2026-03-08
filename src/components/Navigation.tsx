@@ -11,7 +11,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChang
     { id: 'home', icon: '🏠', label: 'Accueil' },
     { id: 'stats', icon: '📊', label: 'Stats' },
      { id: 'tournaments', icon: '🎲', label: 'Tournois' },
-    { id: 'shop', icon: '👥', label: 'shop' },
+    { id: 'shop', icon: '🛍️', label: 'Shop' },
    
     { id: 'profile', icon: '👤', label: 'Profil' },
   ];
