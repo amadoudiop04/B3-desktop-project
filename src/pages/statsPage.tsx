@@ -381,7 +381,7 @@ export const StatsPage: React.FC<StatsPageProps> = ({ user, onNavigate }) => {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-center py-4 border-b border-gray-800 relative">
+      <div className="flex items-center justify-center py-4 border-b border-gray-800 relative z-50">
         <div className="absolute left-0">
           <button
             type="button"
@@ -393,12 +393,11 @@ export const StatsPage: React.FC<StatsPageProps> = ({ user, onNavigate }) => {
           </button>
         </div>
         <span className="text-sm font-bold tracking-wider">EA SPORTS // VALORANT</span>
-        <div className="absolute right-0">
+        <div className="absolute right-0 z-50">
           <button
             type="button"
-            onClick={() => setIsSettingsOpen((open) => !open)}
-            aria-expanded={isSettingsOpen}
-            aria-haspopup="menu"
+            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+            aria-label="Ouvrir le menu"
             className="w-10 h-10 bg-[#1e293b] rounded-full flex items-center justify-center border border-gray-700 hover:bg-gray-700 transition"
           >
             <span className="text-lg">⚙️</span>
@@ -407,7 +406,7 @@ export const StatsPage: React.FC<StatsPageProps> = ({ user, onNavigate }) => {
           {isSettingsOpen && (
             <div
               role="menu"
-              className="absolute right-0 mt-2 w-48 bg-[#111927] border border-gray-700 rounded-lg shadow-lg overflow-hidden z-20"
+              className="absolute right-0 mt-2 w-48 bg-[#111927] border border-gray-700 rounded-lg shadow-xl overflow-hidden z-[100]"
             >
               <button
                 type="button"

@@ -161,89 +161,290 @@ DB_PASSWORD=votre_mot_de_passe
 
 ### Base de données MySQL
 
-#### 1. Créer la base de données
+#### 1. Importer le dump SQL complet
+
+Téléchargez le fichier SQL complet ou copiez le script ci-dessous et exécutez-le dans phpMyAdmin ou MySQL Workbench :
 
 ```sql
-CREATE DATABASE desktop_projet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE desktop_projet;
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Hôte : 127.0.0.1
+-- Généré le : dim. 08 mars 2026 à 15:47
+-- Version du serveur : 10.4.32-MariaDB
+-- Version de PHP : 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Base de données : `desktop_projet`
+--
+
+CREATE DATABASE IF NOT EXISTS `desktop_projet` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `desktop_projet`;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `riot_id` varchar(50) DEFAULT NULL,
+  `tag_line` varchar(10) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `riot_id`, `tag_line`, `created_at`) VALUES
+(1, 'test1', 'test@test.com', '$2b$10$3QCqPWMqZWlJe4MxlwphYO7EgS0fK3UGBs8gxDMy6/jx492IzLzwG', NULL, NULL, '2026-03-06 00:56:42'),
+(2, 'TenZ_Pro', 'tenz@valorant.com', '$2b$10$YourHashedPasswordHere1234567890123456', NULL, NULL, '2026-03-08 13:45:21'),
+(3, 'Shroud_Gaming', 'shroud@gaming.com', '$2b$10$YourHashedPasswordHere1234567890123456', NULL, NULL, '2026-03-08 13:45:21'),
+(4, 'Faker_Legend', 'faker@league.com', '$2b$10$YourHashedPasswordHere1234567890123456', NULL, NULL, '2026-03-08 13:45:21'),
+(5, 'Ninja_Warrior', 'ninja@twitch.com', '$2b$10$YourHashedPasswordHere1234567890123456', NULL, NULL, '2026-03-08 13:45:21'),
+(6, 's1mple_CSGO', 's1mple@navi.com', '$2b$10$YourHashedPasswordHere1234567890123456', NULL, NULL, '2026-03-08 13:45:21');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `user_stats`
+--
+
+CREATE TABLE `user_stats` (
+  `user_id` int(11) NOT NULL,
+  `rank_name` varchar(20) DEFAULT 'Radiant',
+  `rank_rating` int(11) DEFAULT 0,
+  `win_rate` decimal(5,2) DEFAULT NULL,
+  `kd_ratio` decimal(3,2) DEFAULT NULL,
+  `avg_damage` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `user_stats`
+--
+
+INSERT INTO `user_stats` (`user_id`, `rank_name`, `rank_rating`, `win_rate`, `kd_ratio`, `avg_damage`) VALUES
+(1, 'RADIANT', 800, 62.00, 1.55, 170);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `products`
+--
+
+CREATE TABLE `products` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `price` decimal(10,2) DEFAULT NULL,
+  `category` varchar(50) DEFAULT NULL,
+  `image_url` varchar(255) DEFAULT NULL,
+  `stock_quantity` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `products`
+--
+
+INSERT INTO `products` (`id`, `name`, `price`, `category`, `image_url`, `stock_quantity`) VALUES
+(1, 'Pro Kit Edition 04', 64.99, 'maillot', 'https://lemaillotesport.com/wp-content/uploads/maillot-team-esport-personnalise-ssoj-avant-min.jpg', 25),
+(2, 'Casquette Streath', 29.99, 'accessoire', 'https://www.genicado.com/177796-medium_default/casquette-sport-personnalisee-.jpg', 40),
+(3, 'EA SPORTS Team Jersey 2024', 85.00, 'MAILLOTS', 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500', 25),
+(4, 'Valorant Champions Jersey', 79.99, 'MAILLOTS', 'https://images.unsplash.com/photo-1589802829985-817e51171b92?w=500', 15),
+(5, 'League of Legends Pro Jersey', 89.00, 'MAILLOTS', 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=500', 30),
+(6, 'CS:GO Elite Team Jersey', 75.00, 'MAILLOTS', 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500', 20),
+(7, 'Core Iconic Hoodie Black', 55.00, 'SWEATS', 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500', 40),
+(8, 'Gaming Legends Hoodie Blue', 62.00, 'SWEATS', 'https://images.unsplash.com/photo-1509942774463-acf339cf87d5?w=500', 35),
+(9, 'Pro Player Zip Hoodie', 68.00, 'SWEATS', 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=500', 22),
+(10, 'Pro Series Adjustable Cap', 32.00, 'ACCESSOIRES', 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=500', 50),
+(11, 'XL Performance Mousepad RGB', 45.00, 'ACCESSOIRES', 'https://images.unsplash.com/photo-1625225233840-695456021cde?w=500', 60),
+(12, 'Gaming Backpack Premium', 89.99, 'ACCESSOIRES', 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500', 18),
+(13, 'Esport Water Bottle Steel', 24.99, 'ACCESSOIRES', 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500', 75),
+(14, 'Gaming Keychain LED', 12.50, 'ACCESSOIRES', 'https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?w=500', 100);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `orders`
+--
+
+CREATE TABLE `orders` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `total_ttc` decimal(10,2) DEFAULT NULL,
+  `payment_method` enum('Card','PayPal','Crypto') DEFAULT NULL,
+  `status` enum('Pending','Paid','Shipped') DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `order_items`
+--
+
+CREATE TABLE `order_items` (
+  `id` int(11) NOT NULL,
+  `order_id` int(11) DEFAULT NULL,
+  `product_id` int(11) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `price_at_purchase` decimal(10,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `match_history`
+--
+
+CREATE TABLE `match_history` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `map_name` varchar(50) DEFAULT NULL,
+  `score_home` int(11) DEFAULT NULL,
+  `score_away` int(11) DEFAULT NULL,
+  `result` enum('W','L') DEFAULT NULL,
+  `agent_played` varchar(30) DEFAULT NULL,
+  `kills` int(11) DEFAULT NULL,
+  `deaths` int(11) DEFAULT NULL,
+  `assists` int(11) DEFAULT NULL,
+  `played_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `match_history`
+--
+
+INSERT INTO `match_history` (`id`, `user_id`, `map_name`, `score_home`, `score_away`, `result`, `agent_played`, `kills`, `deaths`, `assists`, `played_at`) VALUES
+(42, 1, 'Haven', 13, 11, 'W', 'Jett', 28, 15, 4, '2026-03-08 14:15:42'),
+(43, 2, 'Bind', 10, 13, 'L', 'Phoenix', 18, 21, 7, '2026-03-08 13:15:42'),
+(44, 3, 'Ascent', 13, 9, 'W', 'Sage', 22, 14, 12, '2026-03-08 12:15:42'),
+(45, 4, 'Split', 13, 7, 'W', 'Reyna', 28, 12, 4, '2026-03-08 11:15:42'),
+(46, 5, 'Icebox', 11, 13, 'L', 'Omen', 19, 20, 8, '2026-03-08 10:15:42'),
+(47, 6, 'Breeze', 13, 10, 'L', 'Viper', 24, 17, 9, '2026-03-08 09:15:42');
+
+--
+-- Index pour les tables déchargées
+--
+
+--
+-- Index pour la table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Index pour la table `user_stats`
+--
+ALTER TABLE `user_stats`
+  ADD PRIMARY KEY (`user_id`);
+
+--
+-- Index pour la table `products`
+--
+ALTER TABLE `products`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index pour la table `orders`
+--
+ALTER TABLE `orders`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Index pour la table `order_items`
+--
+ALTER TABLE `order_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_id` (`order_id`),
+  ADD KEY `product_id` (`product_id`);
+
+--
+-- Index pour la table `match_history`
+--
+ALTER TABLE `match_history`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- AUTO_INCREMENT pour les tables déchargées
+--
+
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+ALTER TABLE `products`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+ALTER TABLE `orders`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `order_items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `match_history`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+
+--
+-- Contraintes pour les tables déchargées
+--
+
+ALTER TABLE `user_stats`
+  ADD CONSTRAINT `user_stats_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+ALTER TABLE `orders`
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
+  ADD CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
+
+ALTER TABLE `match_history`
+  ADD CONSTRAINT `match_history_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 ```
 
-#### 2. Créer les tables
+#### 2. Données incluses
 
-```sql
--- Table des utilisateurs
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    riot_id VARCHAR(100),
-    tag_line VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+Le dump SQL contient déjà :
+- **6 utilisateurs de test** (test1, TenZ_Pro, Shroud_Gaming, Faker_Legend, Ninja_Warrior, s1mple_CSGO)
+- **14 produits** répartis dans les catégories (Maillots, Sweats, Accessoires)
+- **6 matchs** avec statistiques complètes (K/D/A, cartes Valorant, résultats)
+- **Statistiques utilisateur** pour test1 (Rank RADIANT, 62% winrate, 1.55 K/D)
 
--- Table des statistiques
-CREATE TABLE user_stats (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    rank_name VARCHAR(50),
-    rank_rating INT DEFAULT 0,
-    win_rate DECIMAL(5,2) DEFAULT 0.00,
-    kd_ratio DECIMAL(5,2) DEFAULT 0.00,
-    avg_damage DECIMAL(10,2) DEFAULT 0.00,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+#### 3. Comptes de test disponibles
 
--- Table des produits
-CREATE TABLE products (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-    category VARCHAR(100),
-    image_url TEXT,
-    stock_quantity INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+| Username | Email | Mot de passe (bcrypt) |
+|----------|-------|----------------------|
+| test1 | test@test.com | `test123` (déjà hashé) |
+| TenZ_Pro | tenz@valorant.com | Hash fictif (à modifier) |
+| Shroud_Gaming | shroud@gaming.com | Hash fictif (à modifier) |
+| Faker_Legend | faker@league.com | Hash fictif (à modifier) |
+| Ninja_Warrior | ninja@twitch.com | Hash fictif (à modifier) |
+| s1mple_CSGO | s1mple@navi.com | Hash fictif (à modifier) |
 
--- Table des commandes
-CREATE TABLE orders (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    total_ttc DECIMAL(10,2) NOT NULL,
-    payment_method ENUM('Card', 'PayPal', 'Crypto') NOT NULL,
-    status ENUM('Pending', 'Paid', 'Shipped') DEFAULT 'Pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- Table des articles de commande
-CREATE TABLE order_items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL,
-    product_id INT NOT NULL,
-    quantity INT NOT NULL,
-    price_at_purchase DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id)
-);
-
--- Table de l'historique des matchs
-CREATE TABLE match_history (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    map_name VARCHAR(100) NOT NULL,
-    score_home INT NOT NULL,
-    score_away INT NOT NULL,
-    result ENUM('W', 'L', 'win', 'loss') NOT NULL,
-    agent_played VARCHAR(50) NOT NULL,
-    kills INT DEFAULT 0,
-    deaths INT DEFAULT 0,
-    assists INT DEFAULT 0,
-    played_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+**Note:** Pour vous connecter, utilisez le compte `test1` avec n'importe quel mot de passe (le hash est déjà configuré).
 ```
 
 ## 💻 Utilisation

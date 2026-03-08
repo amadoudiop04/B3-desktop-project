@@ -243,7 +243,7 @@ const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigate }) => {
       <div className="max-w-5xl mx-auto ">
         {/* Main Tournament Card */}
         <div 
-          className="border border-slate-700 rounded-2xl p-8 mb-8 bg-[#111927] bg-cover bg-center relative overflow-hidden"
+          className="border border-slate-700 rounded-2xl p-8 mb-8 bg-[#111927] bg-cover bg-center relative overflow-hidden z-0"
           style={{
             backgroundImage: 'url(https://www.lequipe.fr/_medias/img-photo-jpg/trois-clubs-francais-evolueront-dans-le-valorant-champions-tour-en-2025-c-young-wolff-riot-games/1500000002126421/0:0,2000:1333-828-552-75/51b38.jpg)',
             backgroundSize: 'cover',
@@ -499,7 +499,7 @@ const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigate }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-sm"
             onClick={() => setShowLiveModal(false)}
           >
             <motion.div
@@ -538,7 +538,7 @@ const TournamentPage: React.FC<TournamentPageProps> = ({ onNavigate }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
             onClick={() => {
               if (!isSimulating) setShowJoinModal(false);
             }}
