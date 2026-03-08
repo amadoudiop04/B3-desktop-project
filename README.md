@@ -1,5 +1,11 @@
 # 🎮 B3 Desktop - Plateforme E-Sport
 
+## 👥 Membres du Projet
+
+- **Diop**
+- **AKTAS Semih**
+- **AHMED KAFFA**
+
 <div align="center">
 
 ![Electron](https://img.shields.io/badge/Electron-40.4.1-47848F?style=for-the-badge&logo=electron&logoColor=white)
@@ -679,10 +685,3 @@ B3-desktop-projet-electron/
 - [ ] Streaming Twitch intégré
 - [ ] Système de classement ELO
 - [ ] Matchmaking automatique
-
-## 👨‍💻 Auteur
-
-**AMADOU**
-
-## 📞 Support
- Contactez-moi par email
