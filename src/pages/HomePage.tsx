@@ -1,12 +1,56 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HeroSection } from '../components/StreamCard';
 import { CompetitionCard } from '../components/CompetitionCard';
 import { PerformanceCard } from '../components/PerformanceCard';
-import { ProductCard } from '../components/ProductCard';
+import { ProductCard, Product } from '../components/ProductCard';
 
-export const HomePage: React.FC<{ onNavigate?: (page: string) => void }> = ({ onNavigate }) => {
+export const HomePage: React.FC<{ onNavigate?: (page: string) => void; onBuyProduct?: (product: Product) => void }> = ({ onNavigate, onBuyProduct }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProducts = async (attempt = 0) => {
+      try {
+        if (!window.electronAPI) {
+          return;
+        }
+
+        const response = await window.electronAPI.getProducts();
+
+        if (!response.success || !response.products || !isMounted) {
+          return;
+        }
+
+        const mappedProducts: Product[] = response.products.map((product) => ({
+          name: product.name,
+          price: `€${Number(product.price).toFixed(2)}`,
+          image: product.image_url,
+        }));
+
+        setProducts(mappedProducts);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '';
+        if (attempt < 1 && message.includes("No handler registered for 'products:getProducts'")) {
+          setTimeout(() => {
+            if (isMounted) {
+              void loadProducts(attempt + 1);
+            }
+          }, 400);
+          return;
+        }
+        console.error('Erreur lors du chargement des produits:', error);
+      }
+    };
+
+    void loadProducts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -54,20 +98,6 @@ export const HomePage: React.FC<{ onNavigate?: (page: string) => void }> = ({ on
       description: 'Tournoi / Grand Prix',
       prize: '3000 €',
     },
-  ];
-
-  const products = [
-    {
-      name: 'Pro Kit Edition 04',
-      price: '€64.99',
-      discount: '-15% OFF',
-      image: 'https://lemaillotesport.com/wp-content/uploads/maillot-team-esport-personnalise-ssoj-avant-min.jpg',
-    },
-    {
-      name: 'Casquette "Streath"',
-      price: '€29.99',
-      image: 'https://www.genicado.com/177796-medium_default/casquette-sport-personnalisee-.jpg',
-    }
   ];
 
   return (
@@ -170,7 +200,7 @@ export const HomePage: React.FC<{ onNavigate?: (page: string) => void }> = ({ on
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onNavigate('tournaments')}
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold text-sm transition-all text-white"
+                className="px-4 py-2 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold text-sm transition-all text-white"
               >
                 🏆 Tous les tournois
               </motion.button>
@@ -222,7 +252,7 @@ export const HomePage: React.FC<{ onNavigate?: (page: string) => void }> = ({ on
         <h2 className="text-lg font-bold mb-3">Tendances Boutique</h2>
 
         <div className="grid grid-cols-2 gap-4">
-          {products.map((product, index) => (
+          {products.slice(0, 2).map((product, index) => (
             <ProductCard
               key={index}
               name={product.name}
@@ -230,7 +260,7 @@ export const HomePage: React.FC<{ onNavigate?: (page: string) => void }> = ({ on
               discount={product.discount}
               image={product.image}
               index={index}
-              onNavigate={onNavigate}
+              onBuyProduct={onBuyProduct}
             />
           ))}
         </div>

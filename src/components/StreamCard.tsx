@@ -72,7 +72,7 @@ export const HeroSection: React.FC = () => {
               <iframe
                 width="100%"
                 height="100%"
-                src="https://www.youtube.com/watch?v=4CXq5PLNjts"
+                src="https://www.youtube.com/embed/4CXq5PLNjts?autoplay=1&rel=0"
                 title="VALORANT Champions Tour"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

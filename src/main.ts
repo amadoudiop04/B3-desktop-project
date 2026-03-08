@@ -4,6 +4,7 @@ import started from 'electron-squirrel-startup';
 import { testConnection, closePool } from './database/connection';
 import { createUser, authenticateUser, updateUserPassword, updateUserProfile } from './database/userService';
 import { getUserStats, saveUserStats } from './database/statsService';
+import { getProducts } from './database/productService';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -64,6 +65,22 @@ const createWindow = () => {
 
 // IPC Handlers pour l'authentification
 const setupIpcHandlers = () => {
+  const channels = [
+    'auth:login',
+    'auth:register',
+    'auth:getCurrentUser',
+    'auth:logout',
+    'stats:getUserStats',
+    'stats:saveUserStats',
+    'products:getProducts',
+    'user:updateProfile',
+    'user:updatePassword',
+  ];
+
+  for (const channel of channels) {
+    ipcMain.removeHandler(channel);
+  }
+
   // Connexion
   ipcMain.handle('auth:login', async (_event, email: string, password: string) => {
     try {
@@ -129,6 +146,19 @@ const setupIpcHandlers = () => {
     }
   });
 
+  // Recuperer les produits de la boutique
+  ipcMain.handle('products:getProducts', async () => {
+    try {
+      const products = await getProducts();
+      return { success: true, products };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur lors de la recuperation des produits',
+      };
+    }
+  });
+
   // Mettre à jour le profil utilisateur
   ipcMain.handle('user:updateProfile', async (_event, userId: number, updates: { username?: string; email?: string; riotId?: string; tagLine?: string }) => {
     try {
@@ -161,18 +191,18 @@ const setupIpcHandlers = () => {
 
 // Initialiser l'application
 const initializeApp = async () => {
-  // Tester la connexion à la base de données
-  const isConnected = await testConnection();
-  if (!isConnected) {
-    console.error('⚠️  Impossible de se connecter à la base de données');
-    console.error('Vérifiez votre fichier .env et que MySQL est en cours d\'exécution');
-  }
-
   // Configurer les IPC handlers
   setupIpcHandlers();
 
   // Créer la fenêtre
   createWindow();
+
+  // Tester la connexion à la base de données sans bloquer l'enregistrement IPC
+  const isConnected = await testConnection();
+  if (!isConnected) {
+    console.error('⚠️  Impossible de se connecter à la base de données');
+    console.error('Vérifiez votre fichier .env et que MySQL est en cours d\'exécution');
+  }
 };
 
 // This method will be called when Electron has finished

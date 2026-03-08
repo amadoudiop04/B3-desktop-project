@@ -40,4 +40,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   updatePassword: (userId: number, newPassword: string) =>
     ipcRenderer.invoke('user:updatePassword', userId, newPassword),
+
+  // Products
+  getProducts: () =>
+    ipcRenderer.invoke('products:getProducts'),
 });

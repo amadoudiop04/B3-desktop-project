@@ -11,11 +11,18 @@ import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import TournamentPage from './pages/TournamentPage';
 import { PaymentPage } from './pages/PaymentPage';
+import { Product } from './components/ProductCard';
 
 const AppContent = () => {
   const { user, logout, isLoading } = useAuth();
   const [currentPage, setCurrentPage] = useState('home');
   const [hasPlayedLoginSound, setHasPlayedLoginSound] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const handleBuyProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setCurrentPage('payment');
+  };
 
   useEffect(() => {
     // Jouer un son de connexion
@@ -65,15 +72,15 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen bg-[#061325] text-white flex flex-col">
-      {currentPage !== 'tournaments' && <Header username={user.username} onNavigate={setCurrentPage} />}
-      {currentPage === 'home' && <HomePage onNavigate={setCurrentPage} />}
+      <Header username={user.username} onNavigate={setCurrentPage} />
+      {currentPage === 'home' && <HomePage onNavigate={setCurrentPage} onBuyProduct={handleBuyProduct} />}
       {currentPage === 'stats' && <StatsPage user={user} onNavigate={setCurrentPage} />}
       {currentPage === 'profile' && <ProfilePage user={user} onLogout={logout} onNavigate={setCurrentPage} />}
       {currentPage === 'settings' && <SettingsPage user={user} onNavigate={setCurrentPage} />}
       {currentPage === 'tournaments' && <TournamentPage onNavigate={setCurrentPage} />}
-      {currentPage === 'payment' && <PaymentPage onNavigate={setCurrentPage} />}
-      {currentPage !== 'tournaments' && <Footer />}
-      {currentPage !== 'tournaments' && <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />}
+      {currentPage === 'payment' && <PaymentPage onNavigate={setCurrentPage} product={selectedProduct} />}
+      <Footer />
+      <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />
     </div>
   );
 };

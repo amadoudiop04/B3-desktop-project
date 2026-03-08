@@ -1,13 +1,20 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
+export interface Product {
+  name: string;
+  price: string;
+  discount?: string;
+  image: string;
+}
+
 interface ProductCardProps {
   name: string;
   price: string;
   discount?: string;
   image: string;
   index: number;
-  onNavigate?: (page: string) => void;
+  onBuyProduct?: (product: Product) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -16,7 +23,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   discount,
   image,
   index,
-  onNavigate,
+  onBuyProduct,
 }) => {
   return (
     <motion.div
@@ -48,8 +55,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <p className="text-sm font-semibold mb-1">{name}</p>
         <div className="flex items-center justify-between">
           <span className="text-blue-500 font-bold">{price}</span>
-          <button onClick={() => onNavigate?.('payment')} className="text-gray-400 hover:text-white transition">
-            🛒
+          <button 
+            onClick={() => onBuyProduct?.({ name, price, discount, image })} 
+            className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition active:scale-95 flex items-center gap-1"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Acheter
           </button>
         </div>
       </div>

@@ -1,12 +1,27 @@
 import React, { useState } from 'react';
+import { Product } from '../components/ProductCard';
 
 // Interface pour accepter la fonction de navigation
 interface PaymentPageProps {
   onNavigate: (page: string) => void;
+  product: Product | null;
 }
 
-export const PaymentPage: React.FC<PaymentPageProps> = ({ onNavigate }) => {
+export const PaymentPage: React.FC<PaymentPageProps> = ({ onNavigate, product }) => {
   const [paymentMethod, setPaymentMethod] = useState<'carte' | 'paypal' | 'crypto'>('carte');
+
+  // Extraire le prix numérique du produit
+  const getNumericPrice = (priceString: string): number => {
+    const match = priceString.match(/[\d.,]+/);
+    if (match) {
+      return parseFloat(match[0].replace(',', '.'));
+    }
+    return 0;
+  };
+
+  const subtotal = product ? getNumericPrice(product.price) : 0;
+  const total = subtotal;
+  const currency = product?.price.includes('€') ? '€' : product?.price.includes('$') ? '$' : '€';
 
   return (
     <div className="min-h-screen bg-[#0a1628] text-white flex flex-col font-sans pb-20">
@@ -145,17 +160,45 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onNavigate }) => {
           </form>
         )}
 
+        {/* Produit sélectionné */}
+        {product && (
+          <section className="bg-[#132032] rounded-2xl p-4 mb-6 border border-[#1a2942]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Article à acheter</h3>
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-900 to-[#0a1628] rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0">
+                <img 
+                  src={product.image} 
+                  alt={product.name} 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%232563eb%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E';
+                  }}
+                />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-sm mb-1">{product.name}</h4>
+                {product.discount && (
+                  <span className="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold inline-block mb-1">
+                    {product.discount}
+                  </span>
+                )}
+                <p className="text-blue-500 font-bold text-lg">{product.price}</p>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Order Summary */}
         <section className="bg-[#132032] rounded-2xl p-5 mb-8 border border-[#1a2942]">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xs font-bold uppercase tracking-wider">Résumé de la commande</h3>
-            <span className="bg-blue-900/40 text-blue-400 text-[10px] font-bold px-2 py-1 rounded">2 ARTICLES</span>
+            <span className="bg-blue-900/40 text-blue-400 text-[10px] font-bold px-2 py-1 rounded">1 ARTICLE</span>
           </div>
           
           <div className="space-y-3 text-sm mb-6">
             <div className="flex justify-between text-gray-400">
               <span>Sous-total</span>
-              <span>84.98 €</span>
+              <span>{subtotal.toFixed(2)} {currency}</span>
             </div>
             <div className="flex justify-between text-gray-400">
               <span>Livraison Express</span>
@@ -167,7 +210,7 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onNavigate }) => {
           
           <div className="flex justify-between items-center mb-6">
             <span className="font-bold text-sm">TOTAL À PAYER</span>
-            <span className="text-xl font-bold">84.98 €</span>
+            <span className="text-xl font-bold">{total.toFixed(2)} {currency}</span>
           </div>
 
           <div className="flex justify-center items-center gap-2 text-[9px] text-gray-500 tracking-wide uppercase">

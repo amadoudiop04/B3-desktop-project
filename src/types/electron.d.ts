@@ -43,6 +43,18 @@ export interface ElectronAPI {
     tagLine?: string;
   }) => Promise<AuthResponse>;
   updatePassword: (userId: number, newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  getProducts: () => Promise<{
+    success: boolean;
+    products?: Array<{
+      id: number;
+      name: string;
+      price: number;
+      category: string;
+      image_url: string;
+      stock_quantity: number;
+    }>;
+    error?: string;
+  }>;
 }
 
 declare global {
