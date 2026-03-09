@@ -1,5 +1,5 @@
 # 🎮 B3 Desktop - Plateforme E-Sport
-
+![alt text](image.png)
 ## 👥 Membres du Projet
 
 - **Diop**
