@@ -681,14 +681,6 @@ B3-desktop-projet-electron/
 
 ---
 
-## 🚧 Roadmap
-
-### Version 1.1 (En cours)
-- [ ] Système de chat en temps réel
-- [ ] Notifications push
-- [ ] Mode sombre/clair
-- [ ] Support multi-langues
-
 ### Version 2.0 (Planifié)
 - [ ] Intégration API Riot Games
 - [ ] Streaming Twitch intégré
