@@ -51,6 +51,8 @@
 - Winrate et classement
 - Statistiques par agent Valorant
 - Historique détaillé des parties
+![alt text](image.png)
+![alt text](stats.png)
 
 ### 🏆 Tournois
 - Liste des tournois (à venir, en cours, terminés)
@@ -58,6 +60,8 @@
 - Simulation d'inscription aux tournois
 - Visualisation des brackets
 - Streaming de matchs intégré
+![alt text](Tournois.png)
+
 
 ### 🛒 Boutique E-Sport
 - Catalogue de produits (maillots, sweats, accessoires)
@@ -65,18 +69,21 @@
 - Système de codes promo (-5% à -20%)
 - Gestion du stock en temps réel
 - Historique des commandes
+![alt text](Shop.png)
 
 ### 💳 Système de paiement
 - Multiple moyens de paiement (Carte, PayPal, Crypto)
 - Création de commandes avec transactions SQL
 - Mise à jour automatique du stock
 - Confirmation de commande
+![alt text](checkout.png)
 
 ### 👤 Profil utilisateur
 - Informations personnelles
 - Statistiques globales
 - Gestion du compte
 - Modification du mot de passe
+![alt text](profil.png)
 
 ---
 
