@@ -443,7 +443,7 @@ Le dump SQL contient déjà :
 
 | Username | Email | Mot de passe (bcrypt) |
 |----------|-------|----------------------|
-| test1 | test@test.com | `test123` (déjà hashé) |
+| test1 | test@test.com | `test123456` (déjà hashé) |
 | TenZ_Pro | tenz@valorant.com | Hash fictif (à modifier) |
 | Shroud_Gaming | shroud@gaming.com | Hash fictif (à modifier) |
 | Faker_Legend | faker@league.com | Hash fictif (à modifier) |
