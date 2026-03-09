@@ -2,9 +2,9 @@
 ![alt text](image.png)
 ## 👥 Membres du Projet
 
-- **Diop**
+- **AMADOU Diop**
 - **AKTAS Semih**
-- **AHMED KAFFA**
+- **HAMED KAFFA**
 
 <div align="center">
 
