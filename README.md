@@ -108,6 +108,12 @@
 - **ESLint** - Linting du code
 - **PostCSS** - Traitement CSS
 
+
+Dans le cadre de ce projet, nous avons intégré l'IA dans notre flux de travail comme un véritable assistant de développement pour gagner en efficacité et résoudre des défis techniques :
+
+- **Débogage et refonte de l'architecture base de données** : Face à des bugs complexes empêchant la connexion de notre base de données initiale avec Electron, l'IA nous a aidés à diagnostiquer le problème et à pivoter efficacement vers la création d'une architecture SQL (MySQL) plus robuste et adaptée à notre environnement.
+- **Génération de jeux de données (Mock Data)** : Pour tester l'application en conditions réelles de manière pertinente, nous avons utilisé l'IA afin de générer des entrées SQL cohérentes (comptes utilisateurs avec de vrais pseudos e-sport, statistiques de joueurs, produits de la boutique, et historique de matchs).
+- **Documentation** : L'IA a également été mise à contribution pour structurer, formater et mettre au propre ce fichier README, afin d'offrir une documentation claire, esthétique et professionnelle.
 ---
 
 ## 📦 Prérequis
